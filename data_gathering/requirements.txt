@@ -1,0 +1,6 @@
+databases[mysql]==0.7.0
+fastapi==0.88.0
+SQLAlchemy==1.4.45
+uvicorn==0.20.0
+mysqlclient==2.1.1
+mysql-connector-python==8.0.31
