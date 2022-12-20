@@ -1,10 +1,8 @@
 from app.api.database.db import robots
 from sqlalchemy import insert
 from sqlalchemy.dialects import mysql
-import pytest
 
 
-@pytest.mark.usefixtures("client")
 def test_create_robot(client):
     response = client.post(
         "/api/v1/data_gathering/robot",
@@ -17,15 +15,12 @@ def test_create_robot(client):
     assert response.json() == {"serial_number": "SN000"}
 
 
-@pytest.mark.usefixtures("client")
 def test_get_list_robots_empty(client):
     response = client.get("/api/v1/data_gathering/robots")
     assert response.status_code == 200
     assert response.json() == []
 
 
-@pytest.mark.usefixtures("client")
-@pytest.mark.usefixtures("cursor_cnx")
 def test_get_list_robots_with_one(client, cursor_cnx):
     query = str(
         insert(robots)
@@ -39,8 +34,6 @@ def test_get_list_robots_with_one(client, cursor_cnx):
     assert response.json() == [{"serial_number": "SN000"}]
 
 
-@pytest.mark.usefixtures("client")
-@pytest.mark.usefixtures("cursor_cnx")
 def test_get_list_robots_with_multiple(client, cursor_cnx):
     for serial_number in ["SN000", "SN001"]:
         query = str(
