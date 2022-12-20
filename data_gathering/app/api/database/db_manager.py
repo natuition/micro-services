@@ -7,7 +7,8 @@ from app.api.models.gps_point import GPSPointIn, GPSPointOut
 from app.api.models.point_of_path import PointOfPathIn, PointOfPathOut
 from app.api.models.vesc_statistic import VescStatisticIn, VescStatisticOut
 from app.api.models.weed_type import WeedTypeIn, WeedTypeOut
-from app.api.database.db import fields, robots, sessions, fields_corners, gps_points, points_of_paths, extracted_weeds, vesc_statistics, weed_types, database
+from app.api.database.db import fields, robots, sessions, fields_corners, gps_points, points_of_paths, extracted_weeds, vesc_statistics, weed_types, database, DATABASE_URI
+from databases import DatabaseURL
 
 
 async def add_field(payload: FieldIn):
@@ -107,3 +108,11 @@ async def add_weed_type(payload: WeedTypeIn):
 async def get_all_weed_types() -> list[WeedTypeOut]:
     query = weed_types.select()
     return await database.fetch_all(query=query)
+
+
+async def get_all_truncate():
+    return await database.fetch_all(query=f"SELECT Concat('TRUNCATE TABLE ', TABLE_NAME) FROM INFORMATION_SCHEMA.TABLES WHERE table_schema='{DatabaseURL(DATABASE_URI).database}'")
+
+
+async def execute_query(query: str):
+    return await database.execute(query=query)

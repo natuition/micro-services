@@ -7,7 +7,6 @@ from databases import Database
 
 DATABASE_URI = os.getenv('DATABASE_URI')
 
-
 metadata = MetaData()
 
 fields = Table(
