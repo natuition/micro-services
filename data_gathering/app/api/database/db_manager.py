@@ -108,11 +108,3 @@ async def add_weed_type(payload: WeedTypeIn):
 async def get_all_weed_types() -> list[WeedTypeOut]:
     query = weed_types.select()
     return await database.fetch_all(query=query)
-
-
-async def get_all_truncate():
-    return await database.fetch_all(query=f"SELECT Concat('TRUNCATE TABLE ', TABLE_NAME) FROM INFORMATION_SCHEMA.TABLES WHERE table_schema='{DatabaseURL(DATABASE_URI).database}'")
-
-
-async def execute_query(query: str):
-    return await database.execute(query=query)

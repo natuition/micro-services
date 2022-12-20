@@ -1,6 +1,27 @@
 from app.main import app
 from fastapi.testclient import TestClient
+import os
 import pytest
+from databases import DatabaseURL
+import mysql.connector as db
+
+
+@pytest.fixture(autouse=True)
+def delete_all_data():
+    DATABASE_URI = os.getenv('DATABASE_URI')
+    url = DatabaseURL(DATABASE_URI)
+    cnx = db.connect(user=url.username, password=url.password,
+                     host=url.hostname, database=url.database)
+    cursor = cnx.cursor()
+    cursor.execute("SET foreign_key_checks = 0")
+    query = f"SELECT Concat('TRUNCATE TABLE ', TABLE_NAME) FROM INFORMATION_SCHEMA.TABLES WHERE table_schema='{url.database}'"
+    cursor.execute(query)
+    truncates = cursor.fetchall()
+    for truncate in truncates:
+        cursor.execute(truncate[0])
+    cursor.execute("SET foreign_key_checks = 0")
+    cursor.close()
+    cnx.close()
 
 
 @pytest.fixture()
@@ -9,13 +30,7 @@ def client():
         yield test_client
 
 
-@pytest.fixture()
-def delete_all_data(client):
-    response = client.delete("/api/v1/data_gathering/delete_all_data")
-    assert response.status_code == 202
-
-
-def test_create_robot(client, delete_all_data):
+def test_create_robot(client):
     response = client.post(
         "/api/v1/data_gathering/robot",
         json={
@@ -27,7 +42,7 @@ def test_create_robot(client, delete_all_data):
     assert response.json() == {'serial_number': 'SN000'}
 
 
-def test_get_robots(client, delete_all_data):
+def test_get_robots(client):
     response = client.get("/api/v1/data_gathering/robots")
     assert response.status_code == 200
     assert response.json() == []
