@@ -5,14 +5,22 @@ import pytest
 from databases import DatabaseURL
 import mysql.connector as db
 
+DATABASE_URI = os.getenv('DATABASE_URI')
+url = DatabaseURL(DATABASE_URI)
 
-@pytest.fixture(autouse=True)
-def delete_all_data():
-    DATABASE_URI = os.getenv('DATABASE_URI')
-    url = DatabaseURL(DATABASE_URI)
+
+@pytest.fixture()
+def cursor():
     cnx = db.connect(user=url.username, password=url.password,
                      host=url.hostname, database=url.database)
     cursor = cnx.cursor()
+    yield cursor
+    cursor.close()
+    cnx.close()
+
+
+@pytest.fixture(autouse=True)
+def delete_all_data(cursor):
     cursor.execute("SET foreign_key_checks = 0")
     query = f"SELECT Concat('TRUNCATE TABLE ', TABLE_NAME) FROM INFORMATION_SCHEMA.TABLES WHERE table_schema='{url.database}'"
     cursor.execute(query)
@@ -20,8 +28,6 @@ def delete_all_data():
     for truncate in truncates:
         cursor.execute(truncate[0])
     cursor.execute("SET foreign_key_checks = 0")
-    cursor.close()
-    cnx.close()
 
 
 @pytest.fixture()
