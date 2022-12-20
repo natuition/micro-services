@@ -1,5 +1,5 @@
-CREATE TABLE IF NOT EXISTS
-    Customers(
+CREATE TABLE
+    IF NOT EXISTS Customers(
         `id` int NOT NULL PRIMARY KEY AUTO_INCREMENT,
         `name` VARCHAR(255) NOT NULL,
         `email` VARCHAR(255) NOT NULL,
@@ -8,13 +8,13 @@ CREATE TABLE IF NOT EXISTS
         CONSTRAINT `UC_Customer` UNIQUE (email)
     );
 
-CREATE TABLE IF NOT EXISTS
-    Robots(
+CREATE TABLE
+    IF NOT EXISTS Robots(
         `serial_number` VARCHAR(5) NOT NULL PRIMARY KEY
     );
 
-CREATE TABLE IF NOT EXISTS
-    Robots_of_customers(
+CREATE TABLE
+    IF NOT EXISTS Robots_of_customers(
         `id` int NOT NULL PRIMARY KEY AUTO_INCREMENT,
         `robot_serial_number` VARCHAR(5) NOT NULL,
         `customer_id` int NOT NULL,
@@ -22,22 +22,22 @@ CREATE TABLE IF NOT EXISTS
         CONSTRAINT `Robots_of_customers_customer_id__Customers_id` FOREIGN KEY(`customer_id`) REFERENCES Customers(`id`)
     );
 
-CREATE TABLE IF NOT EXISTS
-    GPS_points(
+CREATE TABLE
+    IF NOT EXISTS GPS_points(
         `id` int NOT NULL PRIMARY KEY AUTO_INCREMENT,
         `quality` int NOT NULL,
         `latitude` DECIMAL(20, 18) NOT NULL,
         `longitude` DECIMAL(20, 18) NOT NULL
     );
 
-CREATE TABLE IF NOT EXISTS
-    Fields(
+CREATE TABLE
+    IF NOT EXISTS Fields(
         `id` int NOT NULL PRIMARY KEY AUTO_INCREMENT,
         `label` VARCHAR(255) NOT NULL
     );
 
-CREATE TABLE IF NOT EXISTS
-    Fields_corners(
+CREATE TABLE
+    IF NOT EXISTS Fields_corners(
         `id` int NOT NULL PRIMARY KEY AUTO_INCREMENT,
         `field_id` int NOT NULL,
         `gps_point_id` int NOT NULL,
@@ -45,8 +45,8 @@ CREATE TABLE IF NOT EXISTS
         CONSTRAINT `Fields_corners_gps_point_id__GPS_points_id` FOREIGN KEY(`gps_point_id`) REFERENCES GPS_points(`id`)
     );
 
-CREATE TABLE IF NOT EXISTS
-    Sessions(
+CREATE TABLE
+    IF NOT EXISTS Sessions(
         `id` int NOT NULL PRIMARY KEY AUTO_INCREMENT,
         `start_time` TIMESTAMP(0) NOT NULL,
         `end_time` TIMESTAMP(0) NOT NULL,
@@ -58,8 +58,8 @@ CREATE TABLE IF NOT EXISTS
         CONSTRAINT `Sessions_field_id__Fields_id` FOREIGN KEY(`field_id`) REFERENCES Fields(`id`)
     );
 
-CREATE TABLE IF NOT EXISTS
-    Vesc_statistics(
+CREATE TABLE
+    IF NOT EXISTS Vesc_statistics(
         `id` int NOT NULL PRIMARY KEY AUTO_INCREMENT,
         `session_id` int NOT NULL,
         `voltage` DECIMAL(5, 2) NOT NULL,
@@ -67,8 +67,8 @@ CREATE TABLE IF NOT EXISTS
         CONSTRAINT `Vesc_statistics_session_id__Sessions_id` FOREIGN KEY(`session_id`) REFERENCES Sessions(`id`)
     );
 
-CREATE TABLE IF NOT EXISTS
-    Points_of_paths(
+CREATE TABLE
+    IF NOT EXISTS Points_of_paths(
         `id` int NOT NULL PRIMARY KEY AUTO_INCREMENT,
         `point_number` int NOT NULL,
         `session_id` int NOT NULL,
@@ -77,14 +77,14 @@ CREATE TABLE IF NOT EXISTS
         CONSTRAINT `Points_of_paths_gps_point_id__GPS_points_id` FOREIGN KEY(`gps_point_id`) REFERENCES GPS_points(`id`)
     );
 
-CREATE TABLE IF NOT EXISTS
-    Weed_types(
+CREATE TABLE
+    IF NOT EXISTS Weed_types(
         `id` int NOT NULL PRIMARY KEY AUTO_INCREMENT,
         `label` VARCHAR(255) NOT NULL
     );
 
-CREATE TABLE IF NOT EXISTS
-    Extracted_weeds(
+CREATE TABLE
+    IF NOT EXISTS Extracted_weeds(
         `id` int NOT NULL PRIMARY KEY AUTO_INCREMENT,
         `point_of_path_id` int NOT NULL,
         `weed_type_id` int NOT NULL,

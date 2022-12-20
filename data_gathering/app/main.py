@@ -1,7 +1,9 @@
 from fastapi import FastAPI
-from app.api.routers import router_files
-from app.api.database.db import metadata, database, engine
+from app.api.routes.routers import router_files
+from app.api.database.db import metadata, database, DATABASE_URI
+from sqlalchemy import create_engine
 
+engine = create_engine(DATABASE_URI)
 metadata.create_all(engine)
 
 app = FastAPI(openapi_url="/api/v1/data_gathering/openapi.json",

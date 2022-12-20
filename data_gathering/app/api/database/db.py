@@ -1,13 +1,13 @@
 import os
 
 from sqlalchemy import (Column, DateTime, Integer, MetaData, String, Table,
-                        create_engine, DECIMAL as Decimal)
+                        DECIMAL as Decimal)
 
 from databases import Database
 
 DATABASE_URI = os.getenv('DATABASE_URI')
 
-engine = create_engine(DATABASE_URI)
+
 metadata = MetaData()
 
 fields = Table(
