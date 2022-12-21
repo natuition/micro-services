@@ -18,7 +18,8 @@ IF NOT EXISTS Robots(
 robots = Table(
     'Robots',
     metadata,
-    Column('serial_number', String(5), primary_key=True, index=True)
+    Column('serial_number', String(5), primary_key=True,
+           index=True)
 )
 
 """
@@ -33,7 +34,7 @@ CREATE TABLE
 gps_points = Table(
     'GPS_points',
     metadata,
-    Column('id', Integer, primary_key=True, index=True),
+    Column('id', Integer, primary_key=True, index=True, autoincrement=True),
     Column('quality', Integer),
     Column('latitude', Decimal(20, 18)),
     Column('longitude', Decimal(20, 18))
@@ -52,7 +53,7 @@ CREATE TABLE
 fields = Table(
     'Fields',
     metadata,
-    Column('id', Integer, primary_key=True, index=True),
+    Column('id', Integer, primary_key=True, index=True, autoincrement=True),
     Column('label', String(255)),
     Column('robot_serial_number', String(5)),
     UniqueConstraint('label', 'robot_serial_number', name='UC_Fields'),
@@ -73,7 +74,7 @@ CREATE TABLE
 fields_corners = Table(
     'Fields_corners',
     metadata,
-    Column('id', Integer, primary_key=True, index=True),
+    Column('id', Integer, primary_key=True, index=True, autoincrement=True),
     Column('field_id', Integer),
     Column('gps_point_id', Integer),
     ForeignKeyConstraint(["field_id"], ["Fields.id"],
@@ -99,7 +100,7 @@ CREATE TABLE
 sessions = Table(
     'Sessions',
     metadata,
-    Column('id', Integer, primary_key=True, index=True),
+    Column('id', Integer, primary_key=True, index=True, autoincrement=True),
     Column('start_time', DateTime),
     Column('end_time', DateTime),
     Column('field_id', Integer),
@@ -126,7 +127,7 @@ CREATE TABLE
 vesc_statistics = Table(
     'Vesc_statistics',
     metadata,
-    Column('id', Integer, primary_key=True, index=True),
+    Column('id', Integer, primary_key=True, index=True, autoincrement=True),
     Column('session_id', Integer),
     Column('voltage', Decimal(5, 2)),
     Column('timestamp', DateTime),
@@ -148,7 +149,7 @@ CREATE TABLE
 points_of_paths = Table(
     'Points_of_paths',
     metadata,
-    Column('id', Integer, primary_key=True, index=True),
+    Column('id', Integer, primary_key=True, index=True, autoincrement=True),
     Column('point_number', Integer),
     Column('session_id', Integer),
     Column('gps_point_id', Integer),
@@ -174,7 +175,7 @@ CREATE TABLE
 extracted_weeds = Table(
     'Extracted_weeds',
     metadata,
-    Column('id', Integer, primary_key=True, index=True),
+    Column('id', Integer, primary_key=True, index=True, autoincrement=True),
     Column('point_of_path_id', Integer),
     Column('weed_type_id', Integer),
     Column('session_id', Integer),
@@ -198,7 +199,7 @@ CREATE TABLE
 weed_types = Table(
     'Weed_types',
     metadata,
-    Column('id', Integer, primary_key=True, index=True),
+    Column('id', Integer, primary_key=True, index=True, autoincrement=True),
     Column('label', String(255)),
     UniqueConstraint('label', name='UC_Weed_types')
 )

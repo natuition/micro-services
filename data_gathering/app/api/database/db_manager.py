@@ -1,6 +1,6 @@
 from app.api.models.field import FieldIn, FieldOut
 from app.api.models.robot import RobotIn, RobotOut
-from app.api.models.session import SessionIn, SessionOut
+from app.api.models.session import SessionIn, SessionOut, SessionUpdate
 from app.api.models.extracted_weed import ExtractedWeedIn, ExtractedWeedOut
 from app.api.models.field_corner import FieldCornerIn, FieldCornerOut
 from app.api.models.gps_point import GPSPointIn, GPSPointOut
@@ -46,6 +46,21 @@ async def add_session(payload: SessionIn):
 async def get_all_sessions() -> list[SessionOut]:
     query = sessions.select()
     return await database.fetch_all(query=query)
+
+
+async def get_session(id: int) -> SessionOut:
+    query = sessions.select().where(sessions.c.id == id)
+    return await database.fetch_one(query=query)
+
+
+async def update_session(id: int, payload: SessionUpdate):
+    query = (
+        sessions
+        .update()
+        .where(id == sessions.c.id)
+        .values(**payload.dict(exclude_unset=True))
+    )
+    await database.fetch_one(query=query)
 
 
 async def add_extracted_weed(payload: ExtractedWeedIn):

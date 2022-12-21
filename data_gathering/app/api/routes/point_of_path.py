@@ -21,7 +21,7 @@ async def create_point_of_path(payload: PointOfPathIn):
     except pymysql.err.IntegrityError as error:
         return JSONResponse(status_code=status.HTTP_400_BAD_REQUEST,
                             content={"message": error.args[1]})
-    except:
+    except Exception as error:
         return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                             content={"message": error})
 

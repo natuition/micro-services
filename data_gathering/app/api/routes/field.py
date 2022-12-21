@@ -9,7 +9,7 @@ router = APIRouter(
     responses={400: {"model": HTTPErrorOut}, 500: {"model": HTTPErrorOut}})
 
 
-@router.post('/field', response_model=FieldOut, status_code=201)
+@router.post('/field', response_model=FieldOut, status_code=201, responses={200: {"model": FieldOut}})
 async def create_field(payload: FieldIn):
     try:
         field_id = await db_manager.add_field(payload)
@@ -20,11 +20,18 @@ async def create_field(payload: FieldIn):
         return response
     except pymysql.err.IntegrityError as error:
         if "fields.UC_Fields" in error.args[1]:
-            return await db_manager.get_field(payload)
+            response = await db_manager.get_field(payload)
+            field_out = {
+                "id": response[0],
+                "label": response[1],
+                "robot_serial_number": response[2]
+            }
+            return JSONResponse(status_code=status.HTTP_200_OK,
+                                content=field_out)
         else:
             return JSONResponse(status_code=status.HTTP_400_BAD_REQUEST,
                                 content={"message": error.args[1]})
-    except:
+    except Exception as error:
         return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                             content={"message": error})
 

@@ -1,3 +1,4 @@
+from typing import Optional
 from pydantic import BaseModel, Field
 from datetime import datetime
 
@@ -12,3 +13,8 @@ class SessionIn(BaseModel):
 
 class SessionOut(SessionIn):
     id: int
+
+
+class SessionUpdate(SessionIn):
+    __annotations__ = {k: Optional[v]
+                       for k, v in SessionIn.__annotations__.items()}
