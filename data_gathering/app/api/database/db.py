@@ -191,14 +191,16 @@ extracted_weeds = Table(
 CREATE TABLE
     IF NOT EXISTS Weed_types(
         `id` int NOT NULL PRIMARY KEY AUTO_INCREMENT,
-        `label` VARCHAR(255) NOT NULL
+        `label` VARCHAR(255) NOT NULL,
+        CONSTRAINT `UC_Weed_types` UNIQUE (label)
     );
 """
 weed_types = Table(
     'Weed_types',
     metadata,
     Column('id', Integer, primary_key=True, index=True),
-    Column('label', String(255))
+    Column('label', String(255)),
+    UniqueConstraint('label', name='UC_Weed_types')
 )
 
 database = Database(DATABASE_URI)
