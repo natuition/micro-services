@@ -112,3 +112,9 @@ async def add_weed_type(payload: WeedTypeIn):
 async def get_all_weed_types() -> list[WeedTypeOut]:
     query = weed_types.select()
     return await database.fetch_all(query=query)
+
+
+async def get_weed_type(payload: WeedTypeIn) -> WeedTypeOut:
+    query = weed_types.select().where(
+        weed_types.c.label == payload.label)
+    return await database.fetch_one(query=query)

@@ -19,8 +19,17 @@ async def create_weed_type(payload: WeedTypeIn):
         }
         return response
     except pymysql.err.IntegrityError as error:
-        return JSONResponse(status_code=status.HTTP_400_BAD_REQUEST,
-                            content={"message": error.args[1]})
+        if "weed_types.UC_Weed_types" in error.args[1]:
+            response = await db_manager.get_weed_type(payload)
+            weed_type_out = {
+                "id": response[0],
+                "label": response[1]
+            }
+            return JSONResponse(status_code=status.HTTP_200_OK,
+                                content=weed_type_out)
+        else:
+            return JSONResponse(status_code=status.HTTP_400_BAD_REQUEST,
+                                content={"message": error.args[1]})
     except:
         return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                             content={"message": error})
