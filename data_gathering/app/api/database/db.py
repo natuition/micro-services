@@ -1,7 +1,7 @@
 import os
 
 from sqlalchemy import (Column, DateTime, Integer, MetaData, String, Table,
-                        DECIMAL as Decimal)
+                        DECIMAL as Decimal, UniqueConstraint, ForeignKey)
 
 from databases import Database
 
@@ -13,7 +13,10 @@ fields = Table(
     'Fields',
     metadata,
     Column('id', Integer, primary_key=True),
-    Column('label', String(255))
+    Column('label', String(255)),
+    Column('robot_serial_number', ForeignKey(
+        "Robots.serial_number"), String(5)),
+    UniqueConstraint('label', 'robot_serial_number', name='UC_Fields')
 )
 
 robots = Table(
@@ -25,11 +28,12 @@ robots = Table(
 sessions = Table(
     'Sessions',
     metadata,
-    Column('id', Integer, primary_key=True),
+    Column('id', Integer, ForeignKey("Sessions.id"), primary_key=True),
     Column('start_time', DateTime),
     Column('end_time', DateTime),
-    Column('field_id', Integer),
-    Column('robot_serial_number', String(5)),
+    Column('field_id', ForeignKey("Fields.id"), Integer),
+    Column('robot_serial_number', ForeignKey(
+        "Robots.serial_number"), String(5)),
     Column('previous_sessions_id', Integer, nullable=True)
 )
 
@@ -37,8 +41,8 @@ fields_corners = Table(
     'Fields_corners',
     metadata,
     Column('id', Integer, primary_key=True),
-    Column('field_id', Integer),
-    Column('gps_point_id', Integer)
+    Column('field_id', ForeignKey("Fields.id"), Integer),
+    Column('gps_point_id', ForeignKey("GPS_points.id"), Integer)
 )
 
 gps_points = Table(
@@ -55,17 +59,17 @@ points_of_paths = Table(
     metadata,
     Column('id', Integer, primary_key=True),
     Column('point_number', Integer),
-    Column('session_id', Integer),
-    Column('gps_point_id', Integer)
+    Column('session_id', ForeignKey("Sessions.id"), Integer),
+    Column('gps_point_id', ForeignKey("GPS_points.id"), Integer)
 )
 
 extracted_weeds = Table(
     'Extracted_weeds',
     metadata,
     Column('id', Integer, primary_key=True),
-    Column('point_of_path_id', Integer),
-    Column('weed_type_id', Integer),
-    Column('session_id', Integer),
+    Column('point_of_path_id', ForeignKey("Points_of_paths.id"), Integer),
+    Column('weed_type_id', ForeignKey("Weed_types.id"), Integer),
+    Column('session_id', ForeignKey("Sessions.id"), Integer),
     Column('number', Integer)
 )
 
@@ -73,7 +77,7 @@ vesc_statistics = Table(
     'Vesc_statistics',
     metadata,
     Column('id', Integer, primary_key=True),
-    Column('session_id', Integer),
+    Column('session_id', ForeignKey("Sessions.id"), Integer),
     Column('voltage', Decimal(5, 2)),
     Column('timestamp', DateTime)
 )
