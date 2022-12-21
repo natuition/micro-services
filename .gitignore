@@ -2,3 +2,4 @@ __pycache__
 .vscode
 .idea
 db_fleet_data
+.DS_Store
