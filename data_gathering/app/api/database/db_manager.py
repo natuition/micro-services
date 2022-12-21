@@ -7,13 +7,11 @@ from app.api.models.gps_point import GPSPointIn, GPSPointOut
 from app.api.models.point_of_path import PointOfPathIn, PointOfPathOut
 from app.api.models.vesc_statistic import VescStatisticIn, VescStatisticOut
 from app.api.models.weed_type import WeedTypeIn, WeedTypeOut
-from app.api.database.db import fields, robots, sessions, fields_corners, gps_points, points_of_paths, extracted_weeds, vesc_statistics, weed_types, database, DATABASE_URI
-from databases import DatabaseURL
+from app.api.database.db import fields, robots, sessions, fields_corners, gps_points, points_of_paths, extracted_weeds, vesc_statistics, weed_types, database
 
 
 async def add_field(payload: FieldIn):
     query = fields.insert().values(**payload.dict())
-
     return await database.execute(query=query)
 
 
