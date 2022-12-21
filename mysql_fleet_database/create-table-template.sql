@@ -1,3 +1,4 @@
+"""
 CREATE TABLE
     IF NOT EXISTS Customers(
         `id` int NOT NULL PRIMARY KEY AUTO_INCREMENT,
@@ -96,4 +97,4 @@ CREATE TABLE
         CONSTRAINT `Extracted_weeds_session_id__Sessions_id` FOREIGN KEY(`session_id`) REFERENCES Sessions(`id`),
         CONSTRAINT `Extracted_weeds_point_of_path_id__Points_of_paths_id` FOREIGN KEY(`point_of_path_id`) REFERENCES Points_of_paths(`id`),
         CONSTRAINT `Extracted_weeds_weed_type_id__Weed_types_id` FOREIGN KEY(`weed_type_id`) REFERENCES Weed_types(`id`)
-    );
+    );"""
