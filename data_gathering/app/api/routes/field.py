@@ -19,8 +19,11 @@ async def create_field(payload: FieldIn):
         }
         return response
     except pymysql.err.IntegrityError as error:
-        return JSONResponse(status_code=status.HTTP_400_BAD_REQUEST,
-                            content={"message": error.args[1]})
+        if "fields.UC_Fields" in error.args[1]:
+            return await db_manager.get_field(payload)
+        else:
+            return JSONResponse(status_code=status.HTTP_400_BAD_REQUEST,
+                                content={"message": error.args[1]})
     except:
         return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                             content={"message": error})

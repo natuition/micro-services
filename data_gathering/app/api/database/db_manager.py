@@ -20,6 +20,12 @@ async def get_all_fields() -> list[FieldOut]:
     return await database.fetch_all(query=query)
 
 
+async def get_field(payload: FieldIn) -> FieldOut:
+    query = fields.select().where(
+        (fields.c.label == payload.label) & (fields.c.robot_serial_number == payload.robot_serial_number))
+    return await database.fetch_one(query=query)
+
+
 async def add_robot(payload: RobotIn):
     query = robots.insert().values(**payload.dict())
 
