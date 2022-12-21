@@ -33,7 +33,10 @@ CREATE TABLE
 CREATE TABLE
     IF NOT EXISTS Fields(
         `id` int NOT NULL PRIMARY KEY AUTO_INCREMENT,
-        `label` VARCHAR(255) NOT NULL
+        `label` VARCHAR(255) NOT NULL,
+        `robot_serial_number` VARCHAR(5) NOT NULL,
+        CONSTRAINT `Fields_robot_serial_number__Robot_serial_number` FOREIGN KEY(`robot_serial_number`) REFERENCES Robots(`serial_number`),
+        CONSTRAINT `UC_Fields` UNIQUE (label, robot_serial_number)
     );
 
 CREATE TABLE
