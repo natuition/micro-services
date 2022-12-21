@@ -1,18 +1,29 @@
 from app.api.models.weed_type import WeedTypeIn, WeedTypeOut
 from app.api.database import db_manager
-from fastapi import APIRouter
+from app.api.models.http_error import HTTPErrorOut
+from fastapi import APIRouter, status
+from fastapi.responses import JSONResponse
+import pymysql
 
-router = APIRouter()
+router = APIRouter(
+    responses={400: {"model": HTTPErrorOut}, 500: {"model": HTTPErrorOut}})
 
 
 @router.post('/weed_type', response_model=WeedTypeOut, status_code=201)
 async def create_weed_type(payload: WeedTypeIn):
-    weed_type_id = await db_manager.add_weed_type(payload)
-    response = {
-        'id': weed_type_id,
-        **payload.dict()
-    }
-    return response
+    try:
+        weed_type_id = await db_manager.add_weed_type(payload)
+        response = {
+            'id': weed_type_id,
+            **payload.dict()
+        }
+        return response
+    except pymysql.err.IntegrityError as error:
+        return JSONResponse(status_code=status.HTTP_400_BAD_REQUEST,
+                            content={"message": error.args[1]})
+    except:
+        return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                            content={"message": error})
 
 
 @router.get('/weeds_types', response_model=list[WeedTypeOut])
