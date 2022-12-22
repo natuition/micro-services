@@ -97,11 +97,11 @@ async def websocket_endpoint(websocket: WebSocket, robot_serial_number: str, ses
     """
     await manager.connect(websocket)
     if robot_serial_number != "_":
-        await manager.broadcast(f"{robot_serial_number}[Session:{session_id}] connected.")
+        await manager.broadcast(f"Session n°{session_id} [{robot_serial_number}] connected.")
     try:
         while True:
             data = await websocket.receive_json()
-            await manager.broadcast(f"{robot_serial_number}[Session:{session_id}] : {data}")
+            await manager.broadcast(f"Session n°{session_id} [{robot_serial_number}] : {data}")
             for point_data in data["coordinate_with_extracted_weed"]:
                 current_coordinate = point_data["current_coordinate"]
                 path_point_number = point_data["path_point_number"]
@@ -138,4 +138,4 @@ async def websocket_endpoint(websocket: WebSocket, robot_serial_number: str, ses
     except WebSocketDisconnect:
         manager.disconnect(websocket)
         if robot_serial_number != "_":
-            await manager.broadcast(f"{robot_serial_number}[Session:{session_id}] deconnected.")
+            await manager.broadcast(f"Session n°{session_id} [{robot_serial_number}] deconnected.")
