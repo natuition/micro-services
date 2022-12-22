@@ -1,11 +1,13 @@
 from typing import List
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 from fastapi.responses import HTMLResponse
+import datetime
+from app.api.models.session import SessionUpdate
 from app.api.models.gps_point import GPSPointIn
 from app.api.models.point_of_path import PointOfPathIn
 from app.api.models.weed_type import WeedTypeIn
 from app.api.models.extracted_weed import ExtractedWeedIn
-from app.api.database.db_manager import add_gps_point, add_point_of_path, get_weed_type, add_extracted_weed
+from app.api.database.db_manager import update_session, add_gps_point, add_point_of_path, get_weed_type, add_extracted_weed
 
 
 router = APIRouter()
@@ -64,8 +66,8 @@ class ConnectionManager:
 manager = ConnectionManager()
 
 
-@router.get("/ws_robot_view")
-async def get():
+@router.get("/ws_robot_view", response_class=HTMLResponse)
+async def get_web_socket_view():
     return HTMLResponse(html)
 
 
@@ -101,6 +103,12 @@ async def websocket_endpoint(websocket: WebSocket, robot_serial_number: str, ses
     try:
         while True:
             data = await websocket.receive_json()
+            await update_session(
+                session_id,
+                SessionUpdate(
+                    end_time=datetime.datetime.now()
+                )
+            )
             await manager.broadcast(f"Session n°{session_id} [{robot_serial_number}] : {data}")
             for point_data in data["coordinate_with_extracted_weed"]:
                 current_coordinate = point_data["current_coordinate"]
