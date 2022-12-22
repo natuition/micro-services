@@ -28,7 +28,6 @@ html = """
         </ul>
         <script>
             var session_id = "_"
-            //document.querySelector("#ws-id").textContent = session_id;
             var ws = new WebSocket(`ws://localhost:8080/api/v1/data_gathering/ws/${session_id}/0`);
             ws.onmessage = function(event) {
                 var messages = document.getElementById('messages')
@@ -37,13 +36,6 @@ html = """
                 message.appendChild(content)
                 messages.appendChild(message)
             };
-            function sendMessage(event) {
-                var input = document.getElementById("messageText")
-                msg = {"msg": input.value}
-                ws.send(JSON.stringify(msg))
-                input.value = ''
-                event.preventDefault()
-            }
         </script>
     </body>
 </html>
