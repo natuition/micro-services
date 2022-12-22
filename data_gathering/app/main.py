@@ -12,13 +12,12 @@ app = FastAPI(openapi_url="/api/v1/data_gathering/openapi.json",
 
 @app.on_event("startup")
 async def startup():
+    for router_file, tag_name in router_files:
+        app.include_router(router_file.router, prefix='/api/v1/data_gathering',
+                           tags=[tag_name])
     await database.connect()
 
 
 @app.on_event("shutdown")
 async def shutdown():
     await database.disconnect()
-
-for router_file in router_files:
-    app.include_router(router_file.router, prefix='/api/v1/data_gathering',
-                       tags=['data_gathering'])
