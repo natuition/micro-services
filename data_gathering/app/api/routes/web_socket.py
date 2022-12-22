@@ -15,7 +15,7 @@ html = """
 <!DOCTYPE html>
 <html>
     <head>
-        <title>Chat</title>
+        <title>WebSocket</title>
     </head>
     <body>
         <h1>WebSocket robot</h1>
@@ -72,7 +72,7 @@ class ConnectionManager:
 manager = ConnectionManager()
 
 
-@router.get("/")
+@router.get("/ws_robot_view")
 async def get():
     return HTMLResponse(html)
 
