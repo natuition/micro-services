@@ -33,6 +33,8 @@ docker exec -i fleet_database sh -c 'exec mysql -u root -p"$MYSQL_ROOT_PASSWORD"
 
 ## Run test of data_gathering app :
 
+Be careful, tests delete data from the database !
+
 ```
 docker exec -it data_gathering_service pytest . -s
 ```
