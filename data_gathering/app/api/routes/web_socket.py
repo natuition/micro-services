@@ -30,7 +30,7 @@ html = """
         </ul>
         <script>
             var session_id = "_"
-            var ws = new WebSocket(`ws://localhost:8080/api/v1/data_gathering/ws/${session_id}/0`);
+            var ws = new WebSocket(`ws://${window.location.host}/api/v1/data_gathering/ws/${session_id}/0`);
             ws.onmessage = function(event) {
                 var messages = document.getElementById('messages')
                 var message = document.createElement('li')
@@ -73,30 +73,6 @@ async def get_web_socket_view():
 
 @router.websocket("/ws/{robot_serial_number}/{session_id}")
 async def websocket_endpoint(websocket: WebSocket, robot_serial_number: str, session_id: str):
-    """
-    {
-        "coordinate_with_extracted_weed": [
-            {
-                "extracted_weeds": { "Plantain": 2 },
-                "path_point_number": 10,
-                "current_coordinate": [52.347466706444635, 4.945731782212521, 4] #[lati, longi, point_quality]
-            },
-            {
-                "path_point_number": 11,
-                "current_coordinate": [52.34762624, 4.945991120000001, 4]
-            },
-            {
-                "extracted_weeds": { "Daisy": 1 },
-                "path_point_number": 12,
-                "current_coordinate": [52.34752468000001, 4.946158540000001, 4]
-            },
-            {
-                "path_point_number": 13,
-                "current_coordinate": [52.34736514682898, 4.94589920139857, 2]
-            }
-        ]
-    }
-    """
     await manager.connect(websocket)
     if robot_serial_number != "_":
         await manager.broadcast(f"Session n°{session_id} [{robot_serial_number}] connected.")

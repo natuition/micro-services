@@ -19,7 +19,7 @@ async def create_weed_type(payload: WeedTypeIn):
         }
         return response
     except pymysql.err.IntegrityError as error:
-        if "weed_types.UC_Weed_types" in error.args[1]:
+        if "UC_Weed_types" in error.args[1]:
             response = await db_manager.get_weed_type(payload)
             weed_type_out = {
                 "id": response[0],

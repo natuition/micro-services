@@ -19,7 +19,7 @@ async def create_field(payload: FieldIn):
         }
         return response
     except pymysql.err.IntegrityError as error:
-        if "fields.UC_Fields" in error.args[1]:
+        if "UC_Fields" in error.args[1]:
             response = await db_manager.get_field(payload)
             field_out = {
                 "id": response[0],
