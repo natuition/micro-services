@@ -3,7 +3,7 @@ import os
 from sqlalchemy import (Column, DateTime, Integer, MetaData, String, Table,
                         DECIMAL as Decimal, UniqueConstraint, ForeignKeyConstraint)
 
-from databases import Database
+from databases import Database, DatabaseURL
 
 DATABASE_URI = os.getenv('DATABASE_URI')
 
@@ -205,3 +205,5 @@ weed_types = Table(
 )
 
 database = Database(DATABASE_URI)
+
+database_url = DatabaseURL(DATABASE_URI)
