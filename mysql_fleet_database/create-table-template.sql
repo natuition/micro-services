@@ -6,6 +6,7 @@ CREATE TABLE
         `email` VARCHAR(255) NOT NULL,
         `phone` VARCHAR(20) NOT NULL COMMENT 'Customer phone with area code',
         `hash_pwd` VARCHAR(255) NOT NULL COMMENT 'Customer pwd in MD5',
+        `hash_rt` VARCHAR(255) NOT NULL COMMENT 'Customer token in MD5',
         CONSTRAINT `UC_Customer` UNIQUE (email)
     );
 
@@ -22,6 +23,9 @@ CREATE TABLE
         CONSTRAINT `Robots_of_customers_robot_serial_number__Robot_serial_number` FOREIGN KEY(`robot_serial_number`) REFERENCES Robots(`serial_number`),
         CONSTRAINT `Robots_of_customers_customer_id__Customers_id` FOREIGN KEY(`customer_id`) REFERENCES Customers(`id`)
     );
+
+"""
+Created by api :
 
 CREATE TABLE
     IF NOT EXISTS GPS_points(
@@ -98,3 +102,5 @@ CREATE TABLE
         CONSTRAINT `Extracted_weeds_point_of_path_id__Points_of_paths_id` FOREIGN KEY(`point_of_path_id`) REFERENCES Points_of_paths(`id`),
         CONSTRAINT `Extracted_weeds_weed_type_id__Weed_types_id` FOREIGN KEY(`weed_type_id`) REFERENCES Weed_types(`id`)
     );
+
+"""
