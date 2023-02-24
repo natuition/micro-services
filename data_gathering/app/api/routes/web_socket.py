@@ -1,7 +1,7 @@
 from typing import List
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 from fastapi.responses import HTMLResponse
-import datetime
+from datetime import datetime, timezone
 from app.api.models.session import SessionUpdate
 from app.api.models.gps_point import GPSPointIn
 from app.api.models.point_of_path import PointOfPathIn
@@ -82,7 +82,7 @@ async def websocket_endpoint(websocket: WebSocket, robot_serial_number: str, ses
             await update_session(
                 session_id,
                 SessionUpdate(
-                    end_time=datetime.datetime.now()
+                    end_time=datetime.now(tz=timezone.utc)
                 )
             )
             await manager.broadcast(f"Session n°{session_id} [{robot_serial_number}] : {data}")
