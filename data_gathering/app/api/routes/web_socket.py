@@ -1,4 +1,4 @@
-from typing import List
+from typing import Dict
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 from fastapi.responses import HTMLResponse
 from datetime import datetime, timezone
@@ -9,7 +9,6 @@ from app.api.models.weed_type import WeedTypeIn
 from app.api.models.extracted_weed import ExtractedWeedIn
 from app.api.database.db_manager import update_session, add_gps_point, add_point_of_path, get_weed_type, add_extracted_weed
 
-
 router = APIRouter()
 
 
@@ -18,26 +17,49 @@ html = """
 <html>
     <head>
         <title>WebSocket</title>
+        <style>
+            input:valid {
+                background-color: palegreen;
+            }
+
+            input:invalid {
+                background-color: lightpink;
+            }
+        </style>
     </head>
     <body>
         <h1>WebSocket robot</h1>
-        <!--<h2>Your ID: <span id="ws-id"></span></h2>
-        <form action="" onsubmit="sendMessage(event)">
-            <input type="text" id="messageText" autocomplete="off"/>
+        <h2>Your robot: <span id="ws-id"></span></h2>
+        <form action="" onsubmit="changeRobot(event)">
+            <input type="text" id="robotSN" autocomplete="off" required="required" pattern="SN[0-9]{3}" value="SN000"/>
             <button>Send</button>
-        </form>-->
+        </form>
         <ul id='messages'>
         </ul>
         <script>
-            var session_id = "_"
-            var ws = new WebSocket(`ws://${window.location.host}/api/v1/data_gathering/ws/${session_id}/0`);
+            var robot_id = "SN000";
+            var messages = document.getElementById('messages');
+            document.querySelector("#ws-id").textContent = robot_id;
+
+            var ws = new WebSocket(`ws://${window.location.host}/api/v1/data_gathering/ws/client/${robot_id}`);
+
             ws.onmessage = function(event) {
-                var messages = document.getElementById('messages')
-                var message = document.createElement('li')
-                var content = document.createTextNode(event.data)
-                message.appendChild(content)
-                messages.appendChild(message)
+                var message = document.createElement('li');
+                var content = document.createTextNode(event.data);
+                message.appendChild(content);
+                messages.appendChild(message);
             };
+
+            function changeRobot(event) {
+                robot_id = document.getElementById("robotSN").value
+                ws.close();
+                ws = new WebSocket(`ws://${window.location.host}/api/v1/data_gathering/ws/client/${robot_id}`);
+                document.querySelector("#ws-id").textContent = robot_id;
+                while(messages.firstChild){
+                    messages.removeChild(messages.firstChild);
+                }
+                event.preventDefault()
+            }
         </script>
     </body>
 </html>
@@ -46,21 +68,36 @@ html = """
 
 class ConnectionManager:
     def __init__(self):
-        self.active_connections: List[WebSocket] = []
+        self.clients_active_connections: Dict[WebSocket, str] = dict()
+        self.robots_active_connections: Dict[WebSocket, str] = dict()
 
-    async def connect(self, websocket: WebSocket):
+    async def connect(self, websocket: WebSocket, robot_serial_number: str, is_robot: bool = False):
         await websocket.accept()
-        self.active_connections.append(websocket)
+        if is_robot:
+            self.robots_active_connections[websocket] = robot_serial_number
+            await self.broadcast("Connected", robot_serial_number)
+        else:
+            self.clients_active_connections[websocket] = robot_serial_number
+        print(f"clients:{self.clients_active_connections}",
+              f"robots:{self.robots_active_connections}", flush=True)
 
     def disconnect(self, websocket: WebSocket):
-        self.active_connections.remove(websocket)
+        if websocket in self.robots_active_connections:
+            self.robots_active_connections.pop(websocket)
+        else:
+            self.clients_active_connections.pop(websocket)
 
     async def send_personal_message(self, message: str, websocket: WebSocket):
         await websocket.send_text(message)
 
-    async def broadcast(self, message: str):
-        for connection in self.active_connections:
-            await connection.send_text(message)
+    async def broadcast(self, message: str, robot_serial_number: str = None):
+        if robot_serial_number:
+            for connection, sn in self.clients_active_connections.items():
+                if robot_serial_number == sn:
+                    await connection.send_text(message)
+        else:
+            for connection, _ in self.clients_active_connections.items():
+                await connection.send_text(message)
 
 
 manager = ConnectionManager()
@@ -71,11 +108,20 @@ async def get_web_socket_view():
     return HTMLResponse(html)
 
 
-@router.websocket("/ws/{robot_serial_number}/{session_id}")
+@router.websocket("/ws/client/{robot_serial_number}")
+async def get_robot_websocket_endpoint(websocket: WebSocket, robot_serial_number: str):
+    await manager.connect(websocket, robot_serial_number)
+    try:
+        while True:
+            data = await websocket.receive_json()
+            print(data)
+    except WebSocketDisconnect:
+        manager.disconnect(websocket)
+
+
+@router.websocket("/ws/robot/{robot_serial_number}/{session_id}")
 async def websocket_endpoint(websocket: WebSocket, robot_serial_number: str, session_id: str):
-    await manager.connect(websocket)
-    if robot_serial_number != "_":
-        await manager.broadcast(f"Session n°{session_id} [{robot_serial_number}] connected.")
+    await manager.connect(websocket, robot_serial_number, True)
     try:
         while True:
             data = await websocket.receive_json()
@@ -85,7 +131,7 @@ async def websocket_endpoint(websocket: WebSocket, robot_serial_number: str, ses
                     end_time=datetime.now(tz=timezone.utc)
                 )
             )
-            await manager.broadcast(f"Session n°{session_id} [{robot_serial_number}] : {data}")
+            await manager.broadcast(f"{session_id}::{data}", robot_serial_number)
             for point_data in data["coordinate_with_extracted_weed"]:
                 current_coordinate = point_data["current_coordinate"]
                 path_point_number = point_data["path_point_number"]
@@ -121,5 +167,4 @@ async def websocket_endpoint(websocket: WebSocket, robot_serial_number: str, ses
 
     except WebSocketDisconnect:
         manager.disconnect(websocket)
-        if robot_serial_number != "_":
-            await manager.broadcast(f"Session n°{session_id} [{robot_serial_number}] deconnected.")
+        await manager.broadcast("Disconnected", robot_serial_number)

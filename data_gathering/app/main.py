@@ -6,8 +6,21 @@ from sqlalchemy import create_engine
 engine = create_engine(DATABASE_URI)
 metadata.create_all(engine)
 
+description = """
+It's an API to which allows Violette robot to upload their data.
+
+You can acces to web_socket of robot here : [/api/v1/data_gathering/ws_robot_view](/api/v1/data_gathering/ws_robot_view).
+"""
+
 app = FastAPI(openapi_url="/api/v1/data_gathering/openapi.json",
-              docs_url="/api/v1/data_gathering/docs")
+              docs_url="/api/v1/data_gathering/docs",
+              swagger_ui_parameters={"docExpansion": "none"},
+              title="Data gathering",
+              description=description,
+              version="1.0.0",
+              contact={"name": "Vincent LAMBERT",
+                       "email": "v.lambert@natuition.com"}
+              )
 
 
 @app.on_event("startup")
