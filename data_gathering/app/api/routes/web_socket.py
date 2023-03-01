@@ -78,8 +78,6 @@ class ConnectionManager:
             await self.broadcast("Connected", robot_serial_number)
         else:
             self.clients_active_connections[websocket] = robot_serial_number
-        print(f"clients:{self.clients_active_connections}",
-              f"robots:{self.robots_active_connections}", flush=True)
 
     def disconnect(self, websocket: WebSocket):
         if websocket in self.robots_active_connections:
