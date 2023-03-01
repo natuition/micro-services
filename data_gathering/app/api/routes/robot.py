@@ -19,7 +19,7 @@ async def create_robot(payload: RobotIn):
         }
         return response
     except pymysql.err.IntegrityError as error:
-        return JSONResponse(status_code=status.HTTP_400_BAD_REQUEST,
+        return JSONResponse(status_code=status.HTTP_200_OK,
                             content={"message": error.args[1]})
     except Exception as error:
         return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,

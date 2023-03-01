@@ -9,7 +9,7 @@ metadata.create_all(engine)
 description = """
 It's an API to which allows Violette robot to upload their data.
 
-You can acces to web_socket of robot here : [/api/v1/data_gathering/ws_robot_view](/api/v1/data_gathering/ws_robot_view).
+You can acces to robots web socket of  here : [/api/v1/data_gathering/ws_robot_view](/api/v1/data_gathering/ws_robot_view).
 """
 
 app = FastAPI(openapi_url="/api/v1/data_gathering/openapi.json",

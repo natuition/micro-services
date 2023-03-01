@@ -48,6 +48,7 @@ html = """
                 var content = document.createTextNode(event.data);
                 message.appendChild(content);
                 messages.appendChild(message);
+                if(messages.childElementCount>5) messages.removeChild(messages.firstChild);
             };
 
             function changeRobot(event) {
@@ -112,7 +113,6 @@ async def get_robot_websocket_endpoint(websocket: WebSocket, robot_serial_number
     try:
         while True:
             data = await websocket.receive_json()
-            print(data)
     except WebSocketDisconnect:
         manager.disconnect(websocket)
 
@@ -129,7 +129,8 @@ async def websocket_endpoint(websocket: WebSocket, robot_serial_number: str, ses
                     end_time=datetime.now(tz=timezone.utc)
                 )
             )
-            await manager.broadcast(f"{session_id}::{data}", robot_serial_number)
+            data["session_id"] = session_id
+            await manager.broadcast(f"{data}", robot_serial_number)
             for point_data in data["coordinate_with_extracted_weed"]:
                 current_coordinate = point_data["current_coordinate"]
                 path_point_number = point_data["path_point_number"]
