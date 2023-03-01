@@ -1,7 +1,7 @@
 from enum import Enum
 
 
-class RobotSynthesis(Enum):
+class RobotSynthesis(str, Enum):
     OP = "OP"
     WORKING = "WORKING"
     HS = "HS"
