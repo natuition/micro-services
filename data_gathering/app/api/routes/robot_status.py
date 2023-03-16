@@ -6,6 +6,7 @@ from fastapi import APIRouter, status
 from fastapi.responses import JSONResponse
 import pymysql
 import pytz
+from typing import Union
 
 router = APIRouter(
     responses={400: {"model": HTTPErrorOut}, 500: {"model": HTTPErrorOut}})
@@ -34,6 +35,6 @@ async def create_robot_status(payload: list[RobotStatusIn]):
                             content={"message": error})
 
 
-@router.get('/last_robots_status', response_model=RobotStatusOutDB)
+@router.get('/last_robots_status', response_model=Union[RobotStatusOutDB, None])
 async def get_last_robots_status(serial_number: str):
     return await db_manager.get_robot_synthesis(serial_number)
