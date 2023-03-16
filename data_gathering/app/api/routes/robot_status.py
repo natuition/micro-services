@@ -1,10 +1,11 @@
 from app.api.models.robot_status import RobotStatusIn, RobotStatusInDB, RobotStatusOutDB
-from datetime import datetime, timezone
+from datetime import datetime
 from app.api.database import db_manager
 from app.api.models.http_error import HTTPErrorOut
 from fastapi import APIRouter, status
 from fastapi.responses import JSONResponse
 import pymysql
+import pytz
 
 router = APIRouter(
     responses={400: {"model": HTTPErrorOut}, 500: {"model": HTTPErrorOut}})
@@ -12,7 +13,7 @@ router = APIRouter(
 
 @router.post('/robot_status', response_model=list[RobotStatusOutDB], status_code=201)
 async def create_robot_status(payload: list[RobotStatusIn]):
-    heartbeat_timestamp = datetime.now(tz=timezone.utc)
+    heartbeat_timestamp = datetime.now(pytz.timezone('Europe/Berlin'))
     robots_status_out_DB = list()
     try:
         for robot_status_in in payload:

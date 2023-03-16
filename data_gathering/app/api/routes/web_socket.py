@@ -1,13 +1,14 @@
 from typing import Dict
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 from fastapi.responses import HTMLResponse
-from datetime import datetime, timezone
+from datetime import datetime
 from app.api.models.session import SessionUpdate
 from app.api.models.gps_point import GPSPointIn
 from app.api.models.point_of_path import PointOfPathIn
 from app.api.models.weed_type import WeedTypeIn
 from app.api.models.extracted_weed import ExtractedWeedIn
 from app.api.database.db_manager import update_session, add_gps_point, add_point_of_path, get_weed_type, add_extracted_weed
+import pytz
 
 router = APIRouter()
 
@@ -126,7 +127,7 @@ async def websocket_endpoint(websocket: WebSocket, robot_serial_number: str, ses
             await update_session(
                 session_id,
                 SessionUpdate(
-                    end_time=datetime.now(tz=timezone.utc)
+                    end_time=datetime.now(pytz.timezone('Europe/Berlin'))
                 )
             )
             data["session_id"] = session_id
