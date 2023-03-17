@@ -43,19 +43,21 @@ html = """
             document.querySelector("#ws-id").textContent = robot_id;
 
             var ws = new WebSocket(`ws://${window.location.host}/api/v1/data_gathering/ws/client/${robot_id}`);
+            ws.addEventListener("message", listenWebSocket);
 
-            ws.onmessage = function(event) {
+            function listenWebSocket(event){
                 var message = document.createElement('li');
                 var content = document.createTextNode(event.data);
                 message.appendChild(content);
                 messages.appendChild(message);
                 if(messages.childElementCount>5) messages.removeChild(messages.firstChild);
-            };
+            }
 
             function changeRobot(event) {
                 robot_id = document.getElementById("robotSN").value
                 ws.close();
                 ws = new WebSocket(`ws://${window.location.host}/api/v1/data_gathering/ws/client/${robot_id}`);
+                ws.addEventListener("message", listenWebSocket);
                 document.querySelector("#ws-id").textContent = robot_id;
                 while(messages.firstChild){
                     messages.removeChild(messages.firstChild);
