@@ -38,11 +38,12 @@ html = """
         <ul id='messages'>
         </ul>
         <script>
+            var webSocketLocation = "fleet.natuition.com" //window.location.host
             var robot_id = "SN000";
             var messages = document.getElementById('messages');
             document.querySelector("#ws-id").textContent = robot_id;
 
-            var ws = new WebSocket(`ws://${window.location.host}/api/v1/data_gathering/ws/client/${robot_id}`);
+            var ws = new WebSocket(`wss://${webSocketLocation}/api/v1/data_gathering/ws/client/${robot_id}`);
             ws.addEventListener("message", listenWebSocket);
 
             function listenWebSocket(event){
@@ -56,7 +57,7 @@ html = """
             function changeRobot(event) {
                 robot_id = document.getElementById("robotSN").value
                 ws.close();
-                ws = new WebSocket(`ws://${window.location.host}/api/v1/data_gathering/ws/client/${robot_id}`);
+                ws = new WebSocket(`wss://${webSocketLocation}/api/v1/data_gathering/ws/client/${robot_id}`);
                 ws.addEventListener("message", listenWebSocket);
                 document.querySelector("#ws-id").textContent = robot_id;
                 while(messages.firstChild){
