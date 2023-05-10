@@ -8,6 +8,7 @@ from app.api.models.point_of_path import PointOfPathIn, PointOfPathOut
 from app.api.models.vesc_statistic import VescStatisticIn, VescStatisticOut
 from app.api.models.weed_type import WeedTypeIn, WeedTypeOut
 from app.api.models.robot_status import RobotStatusInDB, RobotStatusOutDB
+from app.api.models.report import ReportOut
 from app.api.database.db import fields, robots, sessions, fields_corners, gps_points, points_of_paths, extracted_weeds, vesc_statistics, weed_types, robots_synthesis, database, database_url
 from sqlalchemy import desc
 
@@ -156,3 +157,27 @@ async def get_robot_synthesis(serial_number: str) -> RobotStatusOutDB:
     query = robots_synthesis.select().where(
         robots_synthesis.c.robot_serial_number == serial_number).order_by(desc(robots_synthesis.c.heartbeat_timestamp))
     return await database.fetch_one(query=query)
+
+async def get_report_data_one_session(session_id: int) -> ReportOut:
+    session_query = sessions.select().where(sessions.c.id == session_id)
+    res_session: SessionOut= await database.fetch_one(query=session_query)
+
+    extracted_weeds_query = extracted_weeds.select().where(extracted_weeds.c.session_id == res_session.id)
+    res_extracted_weeds: list[extracted_weeds] = await database.fetch_all(query=extracted_weeds_query)
+
+    points_of_paths_query = points_of_paths.select().where(points_of_paths.c.session_id == res_session.id)
+    res_points_of_paths: list[PointOfPathOut] = await database.fetch_all(query=points_of_paths_query)
+
+    field_query = fields.select().where(fields.c.id == res_session.field_id)
+    res_field: FieldOut= await database.fetch_one(query=field_query)
+
+    fields_corners_query = fields_corners.select().where(fields_corners.c.field_id == res_field.id)
+    res_fields_corners: list[FieldCornerOut] = await database.fetch_all(query=fields_corners_query)
+
+    return {
+        "session": res_session,
+        "extracted_weeds": res_extracted_weeds,
+        "points_of_paths": res_points_of_paths,
+        "field": res_field,
+        "fields_corners": res_fields_corners
+    }
