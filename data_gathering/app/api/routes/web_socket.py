@@ -80,7 +80,7 @@ class ConnectionManager:
         await websocket.accept()
         if is_robot:
             self.robots_active_connections[websocket] = robot_serial_number
-            await self.broadcast("Connected", robot_serial_number)
+            await self.broadcast({"info": "Connected"}, robot_serial_number)
         else:
             self.clients_active_connections[websocket] = robot_serial_number
 
@@ -90,17 +90,14 @@ class ConnectionManager:
         else:
             self.clients_active_connections.pop(websocket)
 
-    async def send_personal_message(self, message: str, websocket: WebSocket):
-        await websocket.send_text(message)
-
-    async def broadcast(self, message: str, robot_serial_number: str = None):
+    async def broadcast(self, message: dict, robot_serial_number: str = None):
         if robot_serial_number:
             for connection, sn in self.clients_active_connections.items():
                 if robot_serial_number == sn:
-                    await connection.send_text(message)
+                    await connection.send_json(message)
         else:
             for connection, _ in self.clients_active_connections.items():
-                await connection.send_text(message)
+                await connection.send_json(message)
 
 
 manager = ConnectionManager()
@@ -134,7 +131,7 @@ async def websocket_endpoint(websocket: WebSocket, robot_serial_number: str, ses
                 )
             )
             data["session_id"] = session_id
-            await manager.broadcast(f"{data}", robot_serial_number)
+            await manager.broadcast(data, robot_serial_number)
             for point_data in data["coordinate_with_extracted_weed"]:
                 current_coordinate = point_data["current_coordinate"]
                 path_point_number = point_data["path_point_number"]
@@ -170,4 +167,4 @@ async def websocket_endpoint(websocket: WebSocket, robot_serial_number: str, ses
 
     except WebSocketDisconnect:
         manager.disconnect(websocket)
-        await manager.broadcast("Disconnected", robot_serial_number)
+        await manager.broadcast({"info": "Disconnected"}, robot_serial_number)
