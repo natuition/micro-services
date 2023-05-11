@@ -165,19 +165,19 @@ async def get_report_data_one_session(session_id: int) -> ReportOut:
     extracted_weeds_query = extracted_weeds.select().where(extracted_weeds.c.session_id == res_session.id)
     res_extracted_weeds: list[extracted_weeds] = await database.fetch_all(query=extracted_weeds_query)
 
-    points_of_paths_query = points_of_paths.select().where(points_of_paths.c.session_id == res_session.id)
-    res_points_of_paths: list[PointOfPathOut] = await database.fetch_all(query=points_of_paths_query)
+    points_of_paths_gps_points_query = gps_points.select().join(points_of_paths, gps_points.c.id == points_of_paths.c.gps_point_id).where(points_of_paths.c.session_id == res_session.id)
+    res_points_of_paths_gps_points: GPSPointOut = await database.fetch_all(query=points_of_paths_gps_points_query)
 
     field_query = fields.select().where(fields.c.id == res_session.field_id)
     res_field: FieldOut= await database.fetch_one(query=field_query)
 
-    fields_corners_query = fields_corners.select().where(fields_corners.c.field_id == res_field.id)
-    res_fields_corners: list[FieldCornerOut] = await database.fetch_all(query=fields_corners_query)
+    fields_corners_gps_points_query = gps_points.select().join(fields_corners, gps_points.c.id == fields_corners.c.gps_point_id).where(fields_corners.c.field_id == res_field.id)
+    res_fields_corners_gps_points: GPSPointOut = await database.fetch_all(query=fields_corners_gps_points_query)
 
     return {
         "session": res_session,
         "extracted_weeds": res_extracted_weeds,
-        "points_of_paths": res_points_of_paths,
+        "points_of_paths": res_points_of_paths_gps_points,
         "field": res_field,
-        "fields_corners": res_fields_corners
+        "fields_corners": res_fields_corners_gps_points
     }
