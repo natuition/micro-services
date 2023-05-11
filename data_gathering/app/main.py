@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from app.api.routes.routers import router_files
 from app.api.database.db import metadata, database, DATABASE_URI
 from sqlalchemy import create_engine
@@ -22,6 +23,15 @@ app = FastAPI(openapi_url="/api/v1/data_gathering/openapi.json",
                        "email": "v.lambert@natuition.com"}
               )
 
+origins = ["*"]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 @app.on_event("startup")
 async def startup():
