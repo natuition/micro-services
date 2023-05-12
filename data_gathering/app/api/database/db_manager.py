@@ -8,9 +8,9 @@ from app.api.models.point_of_path import PointOfPathIn, PointOfPathOut
 from app.api.models.vesc_statistic import VescStatisticIn, VescStatisticOut
 from app.api.models.weed_type import WeedTypeIn, WeedTypeOut
 from app.api.models.robot_status import RobotStatusInDB, RobotStatusOutDB
-from app.api.models.report import ReportOut
+from app.api.models.report import ReportOut, ExtractedWeedWithGPSPointWithWeedTypeOut
 from app.api.database.db import fields, robots, sessions, fields_corners, gps_points, points_of_paths, extracted_weeds, vesc_statistics, weed_types, robots_synthesis, database, database_url
-from sqlalchemy import desc
+from sqlalchemy import desc, select
 
 
 async def add_field(payload: FieldIn):
@@ -162,8 +162,12 @@ async def get_report_data_one_session(session_id: int) -> ReportOut:
     session_query = sessions.select().where(sessions.c.id == session_id)
     res_session: SessionOut= await database.fetch_one(query=session_query)
 
-    extracted_weeds_query = extracted_weeds.select().where(extracted_weeds.c.session_id == res_session.id)
-    res_extracted_weeds: list[extracted_weeds] = await database.fetch_all(query=extracted_weeds_query)
+    extracted_weed_with_GPS_point_with_weed_type_query = select(gps_points.c.latitude, gps_points.c.longitude, extracted_weeds.c.number, weed_types.c.label)\
+        .join(points_of_paths, points_of_paths.c.id == extracted_weeds.c.point_of_path_id)\
+        .join(weed_types, weed_types.c.id == extracted_weeds.c.weed_type_id)\
+        .join(gps_points, gps_points.c.id == points_of_paths.c.gps_point_id)\
+        .where(extracted_weeds.c.session_id == res_session.id)
+    res_extracted_weed_with_GPS_point_with_weed_type: list[ExtractedWeedWithGPSPointWithWeedTypeOut] = await database.fetch_all(query=extracted_weed_with_GPS_point_with_weed_type_query)
 
     points_of_paths_gps_points_query = gps_points.select().join(points_of_paths, gps_points.c.id == points_of_paths.c.gps_point_id).where(points_of_paths.c.session_id == res_session.id)
     res_points_of_paths_gps_points: GPSPointOut = await database.fetch_all(query=points_of_paths_gps_points_query)
@@ -176,7 +180,7 @@ async def get_report_data_one_session(session_id: int) -> ReportOut:
 
     return {
         "session": res_session,
-        "extracted_weeds": res_extracted_weeds,
+        "extracted_weed_with_GPS_point_with_weed_type": res_extracted_weed_with_GPS_point_with_weed_type,
         "points_of_paths": res_points_of_paths_gps_points,
         "field": res_field,
         "fields_corners": res_fields_corners_gps_points
