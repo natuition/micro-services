@@ -7,13 +7,13 @@ services:
     container_name: fleet_database
     restart: always
     env_file:
-    - ./.env
+      - ./.env
     volumes:
-        - ./mysql_fleet_database/db_fleet_data:/var/lib/mysql
+      - ./mysql_fleet_database/db_fleet_data:/var/lib/mysql
     ports:
-        - 3306:3306
+      - 3306:3306
     healthcheck:
-      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
       interval: 5s
       timeout: 5s
       retries: 10
@@ -27,7 +27,17 @@ services:
     ports:
       - 8001:8000
     env_file:
-    - ./.env
+      - ./.env
+    depends_on:
+      fleet_database:
+        condition: service_healthy
+
+  report_service:
+    build: ./report
+    container_name: report_service
+    restart: always
+    ports:
+      - 8888:1234
     depends_on:
       fleet_database:
         condition: service_healthy
