@@ -32,25 +32,25 @@ services:
       fleet_database:
         condition: service_healthy
 
-  report_service:
+  build_report_service:
     build: ./report
-    container_name: report_service
+    container_name: build_report_service
     ports:
       - 8888:8888
     volumes:
       - ./report/dist/:/usr/src/app/dist/
       - ./report/src/:/usr/src/app/src/
 
-  #nginx_report_service:
-  #  image: nginx:latest
-  #  container_name: nginx_report_service
-  #  ports:
-  #    - "8888:80"
-  #  volumes:
-  #    - ./report/dist:/usr/share/nginx/html
-  #  depends_on:
-  #    build_report_service:
-  #      condition: service_completed_successfully
+  nginx_report_service:
+    image: nginx:latest
+    container_name: nginx_report_service
+    ports:
+      - "8888:80"
+    volumes:
+      - ./report/dist:/usr/share/nginx/html
+    depends_on:
+      build_report_service:
+        condition: service_completed_successfully
 
   nginx:
     image: nginx:latest
