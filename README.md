@@ -3,6 +3,8 @@
 ## For deploy micro services group :
 
 ```
+git submodule init
+git submodule update
 docker-compose up -d --build
 ```
 
