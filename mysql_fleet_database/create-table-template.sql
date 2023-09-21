@@ -6,7 +6,8 @@ CREATE TABLE
         `email` VARCHAR(255) NOT NULL,
         `phone` VARCHAR(20) NOT NULL COMMENT 'Customer phone with area code',
         `hash_pwd` VARCHAR(255) NOT NULL COMMENT 'Customer pwd in MD5',
-        `hash_rt` VARCHAR(255) NOT NULL COMMENT 'Customer token in MD5',
+        `hash_rt`  VARCHAR(255) NULL COMMENT 'Hashed refresh token',
+        `role` ENUM('admin', 'distributor', 'user') default 'user' NOT NULL,
         CONSTRAINT `UC_Customer` UNIQUE (email)
     );
 
