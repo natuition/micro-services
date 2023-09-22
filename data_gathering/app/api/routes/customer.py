@@ -8,9 +8,6 @@ from app.auth.token import Token
 from fastapi.responses import JSONResponse
 import pymysql
 
-import logging
-logger = logging.getLogger("uvicorn")
-
 router = APIRouter(
     responses={400: {"model": HTTPErrorOut}, 500: {"model": HTTPErrorOut}})
 
@@ -47,5 +44,5 @@ async def customer_login(customer: CustomerLogin):
 
 @router.post("/customer/get_info", response_model=CustomerWithoutHash)
 async def customer_get_info(token: str = Depends(JWTBearer())):
-    customer: CustomerWithoutHash = await db_manager.get_customer(Token(token).customer_id) 
+    customer: CustomerWithoutHash = await db_manager.get_customer(Token(token).customer_id)
     return customer

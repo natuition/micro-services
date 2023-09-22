@@ -3,9 +3,11 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.api.routes.routers import router_files
 from app.api.database.db import metadata, database, DATABASE_URI
 from sqlalchemy import create_engine
+import logging
 
 engine = create_engine(DATABASE_URI)
 metadata.create_all(engine)
+logger = logging.getLogger("uvicorn")
 
 description = """
 It's an API to which allows Violette robot to upload their data.

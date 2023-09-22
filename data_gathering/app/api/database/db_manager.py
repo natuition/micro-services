@@ -9,7 +9,7 @@ from app.api.models.vesc_statistic import VescStatisticIn, VescStatisticOut
 from app.api.models.weed_type import WeedTypeIn, WeedTypeOut
 from app.api.models.robot_status import RobotStatusInDB, RobotStatusOutDB
 from app.api.models.report import ReportOut, ExtractedWeedWithGPSPointWithWeedTypeOut
-from app.api.models.customer import CustomerIn, CustomerOut
+from app.api.models.customer import CustomerIn, CustomerOut, CustomerWithoutHash
 from app.api.database.db import fields, robots, sessions, fields_corners, gps_points, points_of_paths, extracted_weeds, vesc_statistics, weed_types, robots_synthesis, customers, database, database_url
 from sqlalchemy import desc, select
 
@@ -197,6 +197,6 @@ async def get_all_customers() -> list[CustomerOut]:
     query = customers.select()
     return await database.fetch_all(query=query)
 
-async def get_customer(customer_id: int) -> CustomerOut:
+async def get_customer(customer_id: int) -> CustomerWithoutHash:
     query = customers.select().where(customers.c.id == customer_id)
     return await database.fetch_one(query=query)
