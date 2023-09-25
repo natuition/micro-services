@@ -40,6 +40,10 @@ async def get_all_robots() -> list[RobotOut]:
     query = robots.select()
     return await database.fetch_all(query=query)
 
+async def get_all_robots_of_customer(customer: CustomerWithoutHash) -> list[RobotOut]:
+    query = robots.select()
+    return await database.fetch_all(query=query)
+
 
 async def add_session(payload: SessionIn):
     query = sessions.insert().values(**payload.dict())
@@ -51,6 +55,9 @@ async def get_all_sessions() -> list[SessionOut]:
     query = sessions.select()
     return await database.fetch_all(query=query)
 
+async def get_all_sessions_of_robot(robot_sn: str) -> list[SessionOut]:
+    query = sessions.select().where(sessions.c.robot_serial_number == robot_sn).order_by(desc(sessions.c.start_time))
+    return await database.fetch_all(query=query)
 
 async def get_session(id: int) -> SessionOut:
     query = sessions.select().where(sessions.c.id == id)

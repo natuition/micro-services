@@ -1,8 +1,7 @@
-from app.api.models.customer import CustomerIn, CustomerOut, CustomerLogin, CustomerToken, CustomerWithoutHash
-from app.auth.auth_handler import signJWT, get_customer
+from app.api.models.customer import CustomerIn, CustomerOut, CustomerWithoutHash
 from app.api.database import db_manager
 from app.api.models.http_error import HTTPErrorOut
-from fastapi import APIRouter, status, Depends, Request
+from fastapi import APIRouter, status, Depends
 from app.auth.auth_bearer import JWTBearer
 from app.auth.token import Token
 from fastapi.responses import JSONResponse
@@ -35,14 +34,7 @@ async def get_customers():
     return await db_manager.get_all_customers()
 
 
-@router.post("/customer/login", response_model=CustomerToken)
-async def customer_login(customer: CustomerLogin):
-    cutomer_out = await get_customer(customer)
-    if cutomer_out is not None:
-        return signJWT(cutomer_out)
-    return JSONResponse(status_code=status.HTTP_401_UNAUTHORIZED, content={"message": "Wrong login details !"})
-
-@router.post("/customer/get_info", response_model=CustomerWithoutHash)
+@router.get("/customer/get_info", response_model=CustomerWithoutHash)
 async def customer_get_info(token: str = Depends(JWTBearer())):
     customer: CustomerWithoutHash = await db_manager.get_customer(Token(token).customer_id)
     return customer

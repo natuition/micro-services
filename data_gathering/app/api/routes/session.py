@@ -30,6 +30,10 @@ async def create_session(payload: SessionIn):
 async def get_sessions():
     return await db_manager.get_all_sessions()
 
+@router.get('/sessions_of_robot', response_model=list[SessionOut])
+async def get_sessions_of_robot(robot_sn: str):
+    return await db_manager.get_all_sessions_of_robot(robot_sn)
+
 
 @router.patch('/session/{id}', status_code=200)
 async def update_session(id: int, payload: SessionUpdate):
