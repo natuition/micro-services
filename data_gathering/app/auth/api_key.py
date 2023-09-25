@@ -14,7 +14,6 @@ def verify_api_key(api_key_header: str = Security(api_key_header)) -> str:
             status_code=status.HTTP_501_NOT_IMPLEMENTED,
             detail="No API Key on server",
         )
-    logger = logging.getLogger("uvicorn")
     if api_key_header in API_KEYS:
         return api_key_header
     raise HTTPException(
