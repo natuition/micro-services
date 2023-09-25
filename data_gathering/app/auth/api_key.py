@@ -1,7 +1,6 @@
 from fastapi import HTTPException, Security, status
 from fastapi.security import APIKeyHeader
 from decouple import config
-import logging
 import json
 
 api_key_header = APIKeyHeader(name="X-API-Key")
