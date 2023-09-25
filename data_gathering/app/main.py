@@ -1,13 +1,12 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from app.api.routes.routers import router_files
 from app.api.database.db import metadata, database, DATABASE_URI
+from app.auth.api_key import verify_api_key
 from sqlalchemy import create_engine
-import logging
 
 engine = create_engine(DATABASE_URI)
 metadata.create_all(engine)
-logger = logging.getLogger("uvicorn")
 
 description = """
 It's an API to which allows Violette robot to upload their data.
@@ -20,9 +19,10 @@ app = FastAPI(openapi_url="/api/v1/data_gathering/openapi.json",
               swagger_ui_parameters={"docExpansion": "none"},
               title="Data gathering",
               description=description,
-              version="1.0.0",
+              version="2.0.0",
               contact={"name": "Vincent LAMBERT",
-                       "email": "v.lambert@natuition.com"}
+                       "email": "v.lambert@natuition.com"},
+              dependencies=[Depends(verify_api_key)]
               )
 
 origins = ["*"]
