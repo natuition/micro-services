@@ -12,7 +12,8 @@ JWT_ALGORITHM = config("algorithm")
 
 def token_response(token: str):
     return {
-        "access_token": token
+        "access_token": token,
+        "token_type": "bearer"
     }
 
 def signJWT(customer: CustomerOut) -> Dict[str, str]:

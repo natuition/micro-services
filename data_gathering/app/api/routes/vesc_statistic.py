@@ -29,3 +29,7 @@ async def create_vesc_statistic(payload: VescStatisticIn):
 @router.get('/vesc_statistics', response_model=list[VescStatisticOut])
 async def get_vesc_statistics():
     return await db_manager.get_all_vesc_statistics()
+
+@router.get('/last_vesc_statistic_of_session', response_model=VescStatisticOut)
+async def get_last_vesc_statistic_of_session(session_id: int):
+    return await db_manager.get_last_vesc_statistic_of_session(session_id)

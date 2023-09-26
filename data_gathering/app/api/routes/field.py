@@ -1,4 +1,4 @@
-from app.api.models.field import FieldIn, FieldOut
+from app.api.models.field import FieldIn, FieldOut, FieldWithGPSPoints
 from app.api.database import db_manager
 from app.api.models.http_error import HTTPErrorOut
 from fastapi import APIRouter, status
@@ -39,3 +39,7 @@ async def create_field(payload: FieldIn):
 @router.get('/fields', response_model=list[FieldOut])
 async def get_fields():
     return await db_manager.get_all_fields()
+
+@router.get('/field_of_session', response_model=FieldWithGPSPoints)
+async def get_field_of_session(session_id: int):
+    return await db_manager.get_field_of_session(session_id)

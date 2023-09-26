@@ -34,6 +34,13 @@ async def get_sessions():
 async def get_sessions_of_robot(robot_sn: str):
     return await db_manager.get_all_sessions_of_robot(robot_sn)
 
+@router.get('/last_session_of_robot', response_model=SessionOut)
+async def get_last_session_of_robot(robot_sn: str):
+    return await db_manager.get_last_session_of_robot(robot_sn)
+
+@router.get('/10_sessions_of_robot', response_model=list[SessionOut])
+async def get_10_sessions_of_robot(robot_sn: str, offset: int = 0):
+    return await db_manager.get_last_10_sessions_of_robot_with_offset(robot_sn, offset)
 
 @router.patch('/session/{id}', status_code=200)
 async def update_session(id: int, payload: SessionUpdate):

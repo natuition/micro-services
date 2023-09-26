@@ -1,5 +1,6 @@
 from app.api.models.robot import RobotIn, RobotOut
-from app.api.models.customer import CustomerWithoutHash
+from app.api.models.robot_of_customer import RobotOfCustomer
+from app.api.models.customer import CustomerOut
 from app.api.database import db_manager
 from app.api.models.http_error import HTTPErrorOut
 from fastapi import APIRouter, status, Depends
@@ -33,7 +34,7 @@ async def create_robot(payload: RobotIn):
 async def get_robot():
     return await db_manager.get_all_robots()
 
-@router.get('/robot_of_customer', response_model=list[RobotOut])
-async def get_robot_of_customer(token: str = Depends(JWTBearer())):
-    customer: CustomerWithoutHash = await db_manager.get_customer(Token(token).customer_id)
+@router.get('/robots_of_connected_customer', response_model=list[RobotOfCustomer])
+async def get_robot_of_connected_customer(token: str = Depends(JWTBearer())):
+    customer: CustomerOut = await db_manager.get_customer(Token(token).customer_id)
     return await db_manager.get_all_robots_of_customer(customer)

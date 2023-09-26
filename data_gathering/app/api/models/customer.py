@@ -20,3 +20,4 @@ class CustomerLogin(BaseModel):
 
 class CustomerToken(BaseModel):
     access_token: str
+    token_type: str = "bearer"

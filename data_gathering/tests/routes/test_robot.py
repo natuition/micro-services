@@ -5,7 +5,7 @@ from sqlalchemy.dialects import mysql
 
 def test_create_robot(client):
     response = client.post(
-        "/api/v1/data_gathering/robot",
+        "/api/violette/v2/robot",
         json={
             "serial_number": "SN000"
         },
@@ -16,7 +16,7 @@ def test_create_robot(client):
 
 
 def test_get_list_robots_empty(client):
-    response = client.get("/api/v1/data_gathering/robots")
+    response = client.get("/api/violette/v2/robots")
     assert response.status_code == 200
     assert response.json() == []
 
@@ -29,7 +29,7 @@ def test_get_list_robots_with_one(client, cursor_cnx):
     )
     cursor_cnx[0].execute(query)
     cursor_cnx[1].commit()
-    response = client.get("/api/v1/data_gathering/robots")
+    response = client.get("/api/violette/v2/robots")
     assert response.status_code == 200
     assert response.json() == [{"serial_number": "SN000"}]
 
@@ -43,7 +43,7 @@ def test_get_list_robots_with_multiple(client, cursor_cnx):
         )
         cursor_cnx[0].execute(query)
         cursor_cnx[1].commit()
-    response = client.get("/api/v1/data_gathering/robots")
+    response = client.get("/api/violette/v2/robots")
     assert response.status_code == 200
     assert response.json() == [{"serial_number": "SN000"}, {
         "serial_number": "SN001"}]
