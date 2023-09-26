@@ -10,19 +10,21 @@ from sqlalchemy import create_engine
 engine = create_engine(DATABASE_URI)
 metadata.create_all(engine)
 
+title = "Fleet control API"
+openapi_url = "/api/violette/v2/openapi.json"
+favicon_url = "https://natuition.com/wp-content/uploads/2019/11/1-1-150x150.png"
+version="2.0.0"
 description = """
 It's an API to which allows Violette robot to upload their data. 
 Also allows you to recover all the data sent from robots in order to use them in different software
-
-You can acces to robots web socket of here : [/api/violette/v2/ws_robot_view](/api/violette/v2/ws_robot_view).
 """
 
-app = FastAPI(openapi_url="/api/violette/v2/openapi.json",
+app = FastAPI(openapi_url=openapi_url,
               docs_url=None,
               redoc_url=None,
-              title="Fleet control API",
+              title=title,
               description=description,
-              version="2.0.0",
+              version=version,
               contact={"name": "Vincent LAMBERT",
                        "email": "v.lambert@natuition.com"}
               )
@@ -52,8 +54,8 @@ async def favicon():
 
 @app.get("/docs", include_in_schema=False)
 def overridden_swagger():
-	return get_swagger_ui_html(openapi_url="/api/violette/v2/openapi.json", title="FastAPI", swagger_favicon_url="https://natuition.com/wp-content/uploads/2019/11/1-1-150x150.png", swagger_ui_parameters={"docExpansion": "none"})
+	return get_swagger_ui_html(openapi_url=openapi_url, title=title, swagger_favicon_url=favicon_url, swagger_ui_parameters={"docExpansion": "none"})
 
 @app.get("/redoc", include_in_schema=False)
 def overridden_redoc():
-	return get_redoc_html(openapi_url="/api/violette/v2/openapi.json", title="FastAPI", redoc_favicon_url="https://natuition.com/wp-content/uploads/2019/11/1-1-150x150.png")
+	return get_redoc_html(openapi_url=openapi_url, title=title, redoc_favicon_url=favicon_url)

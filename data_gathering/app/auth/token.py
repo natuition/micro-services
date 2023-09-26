@@ -1,5 +1,6 @@
 import time
 from app.api.models.customer import CustomerOut
+from app.api.database.role import Role
 
 class Token:
 
@@ -7,13 +8,13 @@ class Token:
 
     def __init__(self, payload = None) -> None:
         if payload is not None:
-            self.customer_id = payload["customer_id"]
-            self.customer_role = payload["customer_role"]
+            self.customer_id: str = payload["customer_id"]
+            self.customer_role: Role = Role[payload["customer_role"].upper()]
             self.expires = payload["expires"]
 
     def generate(self, customer: CustomerOut):
         self.customer_id : str = customer.id,
-        self.customer_role : str = customer.role
+        self.customer_role : Role = customer.role
         self.expires : str = time.time() + self.SECONDS_BEFORE_TOKEN_EXPIRATION
         return self
 

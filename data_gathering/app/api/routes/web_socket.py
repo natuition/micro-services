@@ -103,7 +103,7 @@ class ConnectionManager:
 manager = ConnectionManager()
 
 
-@router.get("/ws_robot_view", response_class=HTMLResponse)
+@router.get("/ws_robot_view", response_class=HTMLResponse, include_in_schema=False)
 async def get_web_socket_view():
     return HTMLResponse(html)
 
