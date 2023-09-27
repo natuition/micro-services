@@ -1,5 +1,8 @@
+from app.api.database.role import Role, has_right_role
+from app.auth.auth_bearer import JWTBearer
+from app.auth.token import Token
 from typing import Dict
-from fastapi import APIRouter, WebSocket, WebSocketDisconnect
+from fastapi import APIRouter, WebSocket, WebSocketDisconnect, Depends
 from fastapi.responses import HTMLResponse
 from datetime import datetime
 from app.api.models.session import SessionUpdate
@@ -104,12 +107,14 @@ manager = ConnectionManager()
 
 
 @router.get("/ws_robot_view", response_class=HTMLResponse, include_in_schema=False)
-async def get_web_socket_view():
+async def get_web_socket_view(token: str = Depends(JWTBearer())):
+    has_right_role(Token(token).customer_role, role_list=[Role.USER])
     return HTMLResponse(html)
 
 
 @router.websocket("/ws/client/{robot_serial_number}")
-async def get_robot_websocket_endpoint(websocket: WebSocket, robot_serial_number: str):
+async def get_robot_websocket_endpoint(websocket: WebSocket, robot_serial_number: str, token: str = Depends(JWTBearer())):
+    has_right_role(Token(token).customer_role, role_list=[Role.USER])
     await manager.connect(websocket, robot_serial_number)
     try:
         while True:
@@ -119,7 +124,8 @@ async def get_robot_websocket_endpoint(websocket: WebSocket, robot_serial_number
 
 
 @router.websocket("/ws/robot/{robot_serial_number}/{session_id}")
-async def websocket_endpoint(websocket: WebSocket, robot_serial_number: str, session_id: str):
+async def websocket_endpoint(websocket: WebSocket, robot_serial_number: str, session_id: str, token: str = Depends(JWTBearer())):
+    has_right_role(Token(token).customer_role, role_list=[Role.ROBOT])
     await manager.connect(websocket, robot_serial_number, True)
     try:
         while True:

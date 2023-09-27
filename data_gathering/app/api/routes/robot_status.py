@@ -1,8 +1,11 @@
+from app.api.database.role import Role, has_right_role
+from app.auth.auth_bearer import JWTBearer
+from app.auth.token import Token
 from app.api.models.robot_status import RobotStatusIn, RobotStatusInDB, RobotStatusOutDB
 from datetime import datetime
 from app.api.database import db_manager
 from app.api.models.http_error import HTTPErrorOut
-from fastapi import APIRouter, status
+from fastapi import APIRouter, status, Depends
 from fastapi.responses import JSONResponse
 import pymysql
 import pytz
@@ -13,7 +16,8 @@ router = APIRouter(
 
 
 @router.post('/robot_status', response_model=list[RobotStatusOutDB], status_code=201)
-async def create_robot_status(payload: list[RobotStatusIn]):
+async def create_robot_status(payload: list[RobotStatusIn], token: str = Depends(JWTBearer())):
+    has_right_role(Token(token).customer_role, role_list=[Role.ROBOT])
     heartbeat_timestamp = datetime.now(pytz.timezone('Europe/Berlin'))
     robots_status_out_DB = list()
     try:
@@ -36,5 +40,6 @@ async def create_robot_status(payload: list[RobotStatusIn]):
 
 
 @router.get('/last_robots_status', response_model=Union[RobotStatusOutDB, None])
-async def get_last_robots_status(serial_number: str):
+async def get_last_robots_status(serial_number: str, token: str = Depends(JWTBearer())):
+    has_right_role(Token(token).customer_role, role_list=[Role.USER])
     return await db_manager.get_robot_synthesis(serial_number)

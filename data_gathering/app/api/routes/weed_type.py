@@ -1,7 +1,10 @@
+from app.api.database.role import Role, has_right_role
+from app.auth.auth_bearer import JWTBearer
+from app.auth.token import Token
 from app.api.models.weed_type import WeedTypeIn, WeedTypeOut
 from app.api.database import db_manager
 from app.api.models.http_error import HTTPErrorOut
-from fastapi import APIRouter, status
+from fastapi import APIRouter, status, Depends
 from fastapi.responses import JSONResponse
 import pymysql
 
@@ -10,7 +13,8 @@ router = APIRouter(
 
 
 @router.post('/weed_type', response_model=WeedTypeOut, status_code=201)
-async def create_weed_type(payload: WeedTypeIn):
+async def create_weed_type(payload: WeedTypeIn, token: str = Depends(JWTBearer())):
+    has_right_role(Token(token).customer_role, role_list=[Role.ROBOT])
     try:
         weed_type_id = await db_manager.add_weed_type(payload)
         response = {
@@ -36,5 +40,6 @@ async def create_weed_type(payload: WeedTypeIn):
 
 
 @router.get('/weeds_types', response_model=list[WeedTypeOut])
-async def get_weeds_types():
+async def get_weeds_types(token: str = Depends(JWTBearer())):
+    has_right_role(Token(token).customer_role, role_list=[Role.ROBOT, Role.USER])
     return await db_manager.get_all_weed_types()

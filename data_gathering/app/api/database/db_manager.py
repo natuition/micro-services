@@ -103,6 +103,10 @@ async def get_all_extracted_weeds() -> list[ExtractedWeedOut]:
     query = extracted_weeds.select()
     return await database.fetch_all(query=query)
 
+async def get_all_extracted_weeds_of_session(session_id: int) -> list[ExtractedWeedOut]:
+    query = extracted_weeds.select(extracted_weeds.c.session_id == session_id)
+    return await database.fetch_all(query=query)
+
 
 async def add_field_corner(payload: FieldCornerIn):
     query = fields_corners.insert().values(**payload.dict())
@@ -131,6 +135,10 @@ async def add_point_of_path(payload: PointOfPathIn):
 
 async def get_all_points_of_paths() -> list[PointOfPathOut]:
     query = points_of_paths.select()
+    return await database.fetch_all(query=query)
+
+async def get_all_points_of_path_of_session(session_id: int) -> list[PointOfPathOut]:
+    query = points_of_paths.select().where(points_of_paths.c.session_id == session_id)
     return await database.fetch_all(query=query)
 
 

@@ -6,7 +6,6 @@ class Role(str, Enum):
     DISTRIBUTOR = "distributor"
     USER = "user"
     ROBOT = "robot"
-    EKYLIBRE = "ekylibre"
 
 def has_right_role(role: Role, role_list: list[Role] = []):
     if Role.ADMIN not in role_list:

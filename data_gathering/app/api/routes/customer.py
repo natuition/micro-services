@@ -1,9 +1,10 @@
+from app.api.database.role import Role, has_right_role
+from app.auth.auth_bearer import JWTBearer
+from app.auth.token import Token
 from app.api.models.customer import CustomerIn, CustomerOut, CustomerWithoutHash
 from app.api.database import db_manager
 from app.api.models.http_error import HTTPErrorOut
 from fastapi import APIRouter, status, Depends
-from app.auth.auth_bearer import JWTBearer
-from app.auth.token import Token
 from fastapi.responses import JSONResponse
 import pymysql
 
@@ -12,7 +13,8 @@ router = APIRouter(
 
 
 @router.post('/customer', response_model=CustomerOut, status_code=201)
-async def create_customer(payload: CustomerIn):
+async def create_customer(payload: CustomerIn, token: str = Depends(JWTBearer())):
+    has_right_role(Token(token).customer_role)
     try:
         customer_id = await db_manager.add_customer(payload)
         customer_id = 0
@@ -30,7 +32,8 @@ async def create_customer(payload: CustomerIn):
 
 
 @router.get('/customers', response_model=list[CustomerOut])
-async def get_customers():
+async def get_customers(token: str = Depends(JWTBearer())):
+    has_right_role(Token(token).customer_role)
     return await db_manager.get_all_customers()
 
 
