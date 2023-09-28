@@ -16,9 +16,6 @@ services:
       test: "mysqladmin ping -h 127.0.0.1 -uroot --password=$$mysql_password"
       interval: 1s
       retries: 120
-    environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      MYSQL_DATABASE: ${MYSQL_DATABASE}
 
   data_gathering_service:
     build: ./data_gathering
