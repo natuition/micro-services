@@ -16,7 +16,7 @@ CREATE TABLE
 IF NOT EXISTS Robots_monitoring(
     'id' int NOT NULL PRIMARY KEY AUTO_INCREMENT,
     `heartbeat_timestamp` datetime NOT NULL,
-    'robot_monitoring' enum ('OP', 'HS', 'ANTI_THEFT') NOT NULL,
+    'robot_monitoring' enum ('BLOCKING_PAGE_1_TO_2', 'BLOCKING_DURING_OPERATION') NOT NULL,
     `robot_serial_number` VARCHAR(5) NOT NULL,
     CONSTRAINT `Robots_monitoring_robot_serial_number__Robot_serial_number` FOREIGN KEY(`robot_serial_number`) REFERENCES Robots(`serial_number`)
 );
