@@ -3,12 +3,34 @@ import os
 from sqlalchemy import (Column, DateTime, Integer, MetaData, String, Table,
                         DECIMAL as Decimal, UniqueConstraint, ForeignKeyConstraint, Enum)
 from app.api.database.robotSynthesis import RobotSynthesis
+from app.api.database.robotMonitoring import RobotMonitoring
 
 from databases import Database, DatabaseURL
 
 DATABASE_URI = os.getenv('DATABASE_URI')
 
 metadata = MetaData()
+
+"""
+CREATE TABLE
+IF NOT EXISTS Robots_monitoring(
+    'id' int NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    `heartbeat_timestamp` datetime NOT NULL,
+    'robot_monitoring' enum ('OP', 'HS', 'ANTI_THEFT') NOT NULL,
+    `robot_serial_number` VARCHAR(5) NOT NULL,
+    CONSTRAINT `Robots_monitoring_robot_serial_number__Robot_serial_number` FOREIGN KEY(`robot_serial_number`) REFERENCES Robots(`serial_number`)
+);
+"""
+robots_monitoring = Table(
+    'Robots_monitoring',
+    metadata,
+    Column('id', Integer, primary_key=True, index=True, autoincrement=True),
+    Column('heartbeat_timestamp', DateTime),
+    Column('robot_monitoring', Enum(RobotMonitoring)),
+    Column('robot_serial_number', String(5)),
+    ForeignKeyConstraint(["robot_serial_number"], [
+                         "Robots.serial_number"], name="Robots_monitoring_robot_serial_number__Robot_serial_number")
+)
 
 """
 CREATE TABLE

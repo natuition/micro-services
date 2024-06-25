@@ -8,8 +8,9 @@ from app.api.models.point_of_path import PointOfPathIn, PointOfPathOut
 from app.api.models.vesc_statistic import VescStatisticIn, VescStatisticOut
 from app.api.models.weed_type import WeedTypeIn, WeedTypeOut
 from app.api.models.robot_status import RobotStatusInDB, RobotStatusOutDB
+from app.api.models.robot_monitoring import RobotMonitoringInDB, RobotMonitoringOutDB
 from app.api.models.report import ReportOut, ExtractedWeedWithGPSPointWithWeedTypeOut
-from app.api.database.db import fields, robots, sessions, fields_corners, gps_points, points_of_paths, extracted_weeds, vesc_statistics, weed_types, robots_synthesis, database, database_url
+from app.api.database.db import fields, robots, sessions, fields_corners, gps_points, points_of_paths, extracted_weeds, vesc_statistics, weed_types, robots_synthesis, robots_monitoring, database, database_url
 from sqlalchemy import desc, select
 
 
@@ -149,14 +150,23 @@ async def deletion_of_all_data_from_the_database():
 
 async def add_robot_synthesis(payload: RobotStatusInDB):
     query = robots_synthesis.insert().values(**payload.dict())
-
     return await database.execute(query=query)
-
 
 async def get_robot_synthesis(serial_number: str) -> RobotStatusOutDB:
     query = robots_synthesis.select().where(
         robots_synthesis.c.robot_serial_number == serial_number).order_by(desc(robots_synthesis.c.heartbeat_timestamp))
     return await database.fetch_one(query=query)
+
+
+async def add_robot_monitoring(payload: RobotMonitoringInDB):
+    query = robots_monitoring.insert().values(**payload.dict())
+    return await database.execute(query=query)
+
+async def get_robot_monitoring(serial_number: str) -> RobotMonitoringOutDB:
+    query = robots_monitoring.select().where(
+        robots_monitoring.c.robot_serial_number == serial_number).order_by(desc(robots_monitoring.c.heartbeat_timestamp))
+    return await database.fetch_one(query=query)
+
 
 async def get_report_data_one_session(session_id: int) -> ReportOut:
     session_query = sessions.select().where(sessions.c.id == session_id)
