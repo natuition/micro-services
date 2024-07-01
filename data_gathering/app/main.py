@@ -4,8 +4,13 @@ from app.api.routes.routers import router_files
 from app.api.database.db import metadata, database, DATABASE_URI
 from sqlalchemy import create_engine
 
+def metadata_dump(sql, *multiparams, **params):
+    # print or write to log or file etc
+    print(sql.compile(dialect=engine.dialect))
+
+#engine = create_engine(DATABASE_URI, strategy='mock', executor=metadata_dump)
 engine = create_engine(DATABASE_URI)
-metadata.create_all(engine)
+metadata.create_all(engine,checkfirst=True)
 
 description = """
 It's an API to which allows Violette robot to upload their data.
