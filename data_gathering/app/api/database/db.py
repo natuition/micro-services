@@ -44,6 +44,7 @@ CREATE TABLE
         `id` int NOT NULL PRIMARY KEY AUTO_INCREMENT,
         `robot_serial_number` VARCHAR(5) NOT NULL,
         `subscriber_username` VARCHAR(255) NOT NULL,
+        `role` ENUM ('ADMIN','DISTRIBUTOR','USER') NOT NULL,
         CONSTRAINT `Robots_of_subscribers_robot_serial_number__Robot_serial_number` FOREIGN KEY(`robot_serial_number`) REFERENCES Robots(`serial_number`),
     );
 """
@@ -53,6 +54,7 @@ robots_of_subscribers = Table(
     Column('id', Integer, primary_key=True, index=True, autoincrement=True),
     Column('robot_serial_number', String(5), nullable=False),
     Column('subscriber_username', String(255), nullable=False),
+    Column('role', Enum(Role), default=Role.USER),
     ForeignKeyConstraint(["robot_serial_number"], [
                          "Robots.serial_number"], name="Robots_of_subscribers_robot_serial_number__Robot_serial_number")
 )
