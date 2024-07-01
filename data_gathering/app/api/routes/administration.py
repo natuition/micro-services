@@ -6,5 +6,4 @@ router = APIRouter()
 
 @router.delete('/clean_database', status_code=200)
 async def deletion_of_all_data_from_the_database():
-    await db_manager.deletion_of_all_data_from_the_database()
-    return
+    return await db_manager.deletion_of_all_data_from_the_database()

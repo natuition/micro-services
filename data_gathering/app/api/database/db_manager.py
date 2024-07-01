@@ -8,9 +8,10 @@ from app.api.models.point_of_path import PointOfPathIn, PointOfPathOut
 from app.api.models.vesc_statistic import VescStatisticIn, VescStatisticOut
 from app.api.models.weed_type import WeedTypeIn, WeedTypeOut
 from app.api.models.robot_status import RobotStatusInDB, RobotStatusOutDB
+from app.api.models.robot_subscriber import RobotSubscriberIn, RobotSubscriberOut
 from app.api.models.robot_monitoring import RobotMonitoringInDB, RobotMonitoringOutDB
 from app.api.models.report import ReportOut, ExtractedWeedWithGPSPointWithWeedTypeOut
-from app.api.database.db import fields, robots, sessions, fields_corners, gps_points, points_of_paths, extracted_weeds, vesc_statistics, weed_types, robots_synthesis, robots_monitoring, database, database_url
+from app.api.database.db import fields, robots, sessions, fields_corners, gps_points, points_of_paths, extracted_weeds, vesc_statistics, weed_types, robots_synthesis, robots_monitoring, database, database_url, robots_of_subscribers
 from sqlalchemy import desc, select
 
 
@@ -29,6 +30,26 @@ async def get_field(payload: FieldIn) -> FieldOut:
         (fields.c.label == payload.label) & (fields.c.robot_serial_number == payload.robot_serial_number))
     return await database.fetch_one(query=query)
 
+async def add_subscriber_of_robot(payload: RobotSubscriberIn):
+    print(payload)
+    query = robots_of_subscribers.insert().values(**payload.dict())
+    print(query)
+    return await database.execute(query=query)
+
+async def get_all_subscriber_with_robot() -> list[RobotSubscriberOut]:
+    query = robots_of_subscribers.select()
+    return await database.fetch_all(query=query)
+
+async def get_all_robot_of_one_subscriber(subscriber_username: str) -> list[RobotOut]:
+    query = robots.select() \
+    .join(robots_of_subscribers, robots.c.serial_number == robots_of_subscribers.c.robot_serial_number) \
+    .where(robots_of_subscribers.c.subscriber_username == subscriber_username)
+    return await database.fetch_all(query=query)
+
+async def remove_one_robot_of_one_subscriber(subscriber_username: str, robot_serial_number: str):
+    query = robots_of_subscribers.delete() \
+    .where((robots_of_subscribers.c.subscriber_username == subscriber_username) & (robots_of_subscribers.c.robot_serial_number == robot_serial_number) )
+    return await database.execute(query=query)
 
 async def add_robot(payload: RobotIn):
     query = robots.insert().values(**payload.dict())

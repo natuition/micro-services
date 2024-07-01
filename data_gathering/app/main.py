@@ -9,7 +9,7 @@ def metadata_dump(sql, *multiparams, **params):
     print(sql.compile(dialect=engine.dialect))
 
 #engine = create_engine(DATABASE_URI, strategy='mock', executor=metadata_dump)
-engine = create_engine(DATABASE_URI)
+engine = create_engine(DATABASE_URI, echo=True)
 metadata.create_all(engine,checkfirst=True)
 
 description = """
