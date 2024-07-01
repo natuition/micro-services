@@ -40,6 +40,26 @@ customers = Table(
 
 """
 CREATE TABLE
+    IF NOT EXISTS Robots_of_subscribers(
+        `id` int NOT NULL PRIMARY KEY AUTO_INCREMENT,
+        `robot_serial_number` VARCHAR(5) NOT NULL,
+        `subscriber_username` VARCHAR(255) NOT NULL,
+        CONSTRAINT `Robots_of_subscribers_robot_serial_number__Robot_serial_number` FOREIGN KEY(`robot_serial_number`) REFERENCES Robots(`serial_number`),
+    );
+"""
+robots_of_subscribers = Table(
+    'Robots_of_subscribers',
+    metadata,
+    Column('id', Integer, primary_key=True, index=True, autoincrement=True),
+    Column('robot_serial_number', String(5), nullable=False),
+    Column('subscriber_username', String(255), nullable=False),
+    ForeignKeyConstraint(["robot_serial_number"], [
+                         "Robots.serial_number"], name="Robots_of_subscribers_robot_serial_number__Robot_serial_number")
+)
+
+
+"""
+CREATE TABLE
     IF NOT EXISTS Robots_of_customers(
         `id` int NOT NULL PRIMARY KEY AUTO_INCREMENT,
         `robot_serial_number` VARCHAR(5) NOT NULL,
@@ -48,6 +68,7 @@ CREATE TABLE
         CONSTRAINT `Robots_of_customers_customer_id__Customers_id` FOREIGN KEY(`customer_id`) REFERENCES Customers(`id`)
     );
 """
+
 robots_of_customers = Table(
     'Robots_of_customers',
     metadata,
