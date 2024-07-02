@@ -1,4 +1,4 @@
-version: '3.7'
+version: '3.8'
 
 services:
 
@@ -28,6 +28,14 @@ services:
       - 8001:8000
     env_file:
       - ./.env
+    depends_on:
+      fleet_database:
+        condition: service_healthy
+
+  monitoring_bot_service:
+    build: ./monitoring_bot
+    container_name: monitoring_bot_service
+    restart: always
     depends_on:
       fleet_database:
         condition: service_healthy

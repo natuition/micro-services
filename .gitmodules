@@ -1,3 +1,6 @@
 [submodule "report"]
 	path = report
 	url = git@github.com:natuition/report.git
+[submodule "monitoring_bot"]
+	path = monitoring_bot
+	url = git@github.com:natuition/monitoring_bot.git
