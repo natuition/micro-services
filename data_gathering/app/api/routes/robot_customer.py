@@ -1,4 +1,4 @@
-from app.api.models.robot_of_customer import RobotOfCustomerIn, RobotOfCustomerOut
+from app.api.models.robot_of_customer import RobotOfCustomerIn, RobotOfCustomerOut, RobotOfCustomerInForm
 from app.api.database import db_manager
 from app.api.models.http_error import HTTPErrorOut
 from fastapi import APIRouter, status
@@ -10,14 +10,9 @@ router = APIRouter(
 
 
 @router.post('/add_robot_of_customer', response_model=RobotOfCustomerOut, status_code=201)
-async def add_robot_of_customer(payload: RobotOfCustomerIn):
+async def add_robot_of_customer(payload: RobotOfCustomerInForm):
     try:
-        robot_of_customer = await db_manager.add_one_robot_of_one_customer(payload)
-        response = {
-            'id': robot_of_customer,
-            **payload.dict()
-        }
-        return response
+        return await db_manager.add_one_robot_of_one_customer(payload)
     except pymysql.err.IntegrityError as error:
         return JSONResponse(status_code=status.HTTP_200_OK,
                             content={"message": error.args[1]})

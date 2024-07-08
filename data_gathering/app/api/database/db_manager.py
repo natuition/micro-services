@@ -11,7 +11,7 @@ from app.api.models.robot_status import RobotStatusInDB, RobotStatusOutDB
 from app.api.models.robot_subscriber import RobotSubscriberIn, RobotSubscriberOut
 from app.api.models.robot_monitoring import RobotMonitoringInDB, RobotMonitoringOutDB
 from app.api.models.report import ReportOut, ExtractedWeedWithGPSPointWithWeedTypeOut
-from app.api.models.robot_of_customer import RobotOfCustomerIn, RobotOfCustomerOut
+from app.api.models.robot_of_customer import RobotOfCustomerIn, RobotOfCustomerOut, RobotOfCustomerInForm
 from app.api.models.customer import CustomerIn, CustomerOut
 from app.api.database.db import fields, robots, sessions, fields_corners, gps_points, points_of_paths, extracted_weeds, vesc_statistics, weed_types, robots_synthesis, robots_monitoring, database, database_url, robots_of_subscribers, robots_of_customers, customers
 from sqlalchemy import desc, select
@@ -76,9 +76,27 @@ async def remove_one_robot_of_one_subscriber(subscriber_username: str, robot_ser
 
 # --- Robot of customer administration ---
 
-async def add_one_robot_of_one_customer(payload: RobotOfCustomerIn):
-    query = robots_of_customers.insert().values(**payload.dict())
-    return await database.execute(query=query)
+async def add_one_robot_of_one_customer(payload: RobotOfCustomerInForm):
+    query = select(customers.c.id) .where(customers.c.email == payload.customer_email)
+    customers_id = await database.fetch_one(query=query)
+    customers_id = customers_id[0]
+    
+    query = robots_of_customers.select().where((robots_of_customers.c.customer_id == customers_id) & (robots_of_customers.c.robot_serial_number == payload.robot_serial_number))
+    exist = await database.fetch_one(query=query)
+    
+    if exist is None:
+        query = robots_of_customers.insert().values(robot_serial_number=payload.robot_serial_number, customer_id=customers_id)
+        robot_customer_id = await database.execute(query=query)
+        return {
+            "robot_serial_number" : payload.robot_serial_number,
+            "id" : robot_customer_id,
+            "customer_id" : customers_id
+        }
+    return {
+        "id" : exist[0],
+        "robot_serial_number" : exist[1],
+        "customer_id" : exist[2]
+    }
 
 async def get_all_customer_with_robot() -> list[RobotOfCustomerOut]:
     query = robots_of_customers.select()
@@ -152,7 +170,7 @@ async def get_all_extracted_weeds() -> list[ExtractedWeedOut]:
 
 
 async def get_all_extracted_weeds_of_session(session_id: int) -> list[ExtractedWeedOut]:
-    query = extracted_weeds.select(extracted_weeds.c.session_id == session_id)
+    query = extracted_weeds.select().where(extracted_weeds.c.session_id == session_id)
     return await database.fetch_all(query=query)
 
 # --- FieldCorner ---
@@ -169,7 +187,7 @@ async def get_all_fields_corners() -> list[FieldCornerOut]:
 
 
 async def get_field_corners(field_id : int) -> list[FieldCornerOut]:
-    query = fields_corners.select(fields_corners.c.field_id == field_id)
+    query = fields_corners.select().where(fields_corners.c.field_id == field_id)
     return await database.fetch_all(query=query)
 
 # --- GPSPoint ---
@@ -185,7 +203,7 @@ async def get_all_gps_points() -> list[GPSPointOut]:
     return await database.fetch_all(query=query)
 
 async def get_gps_point(gps_point_id : int) -> GPSPointOut:
-    query = gps_points.select(gps_points.c.id == gps_point_id)
+    query = gps_points.select().where(gps_points.c.id == gps_point_id)
     return await database.fetch_all(query=query)
 
 # --- PointOfPath ---

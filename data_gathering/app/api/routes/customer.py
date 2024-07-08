@@ -17,7 +17,6 @@ async def create_customer(payload: CustomerCreation):
         hashed_pwd = bcrypt.hashpw(str.encode(payload.password), bcrypt.gensalt(rounds=10))
         final_customer: CustomerIn = CustomerIn(name=payload.name, email=payload.email, phone=payload.phone, role=Role.USER, hash_pwd=hashed_pwd.decode())
         customer_id = await db_manager.add_customer(final_customer)
-        customer_id = 0
         response = {
             'id': customer_id,
             **payload.dict()
@@ -31,5 +30,5 @@ async def create_customer(payload: CustomerCreation):
                             content={"message": error})
 
 @router.get('/customers', response_model=list[CustomerOut])
-async def get_customers():
+async def all_customers():
     return await db_manager.get_all_customers()
