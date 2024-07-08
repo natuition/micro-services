@@ -5,6 +5,7 @@ from app.api.models.http_error import HTTPErrorOut
 from fastapi import APIRouter, status, Depends
 from fastapi.responses import JSONResponse
 import pymysql
+import bcrypt
 
 router = APIRouter(
     responses={400: {"model": HTTPErrorOut}, 500: {"model": HTTPErrorOut}})
@@ -13,14 +14,8 @@ router = APIRouter(
 @router.post('/create_customer', response_model=CustomerWithoutHash, status_code=201)
 async def create_customer(payload: CustomerCreation):
     try:
-        final_customer: CustomerIn = {
-            "name" : playload.name,
-            "email" : playload.email,
-            "phone" : playload.phone,
-            "role" : playload.role,
-            "hash_pwd": "",
-            "hash_rt" : ""
-        }
+        hashed_pwd = bcrypt.hashpw(str.encode(payload.password), bcrypt.gensalt(rounds=10))
+        final_customer: CustomerIn = CustomerIn(name=payload.name, email=payload.email, phone=payload.phone, role=Role.USER, hash_pwd=hashed_pwd.decode())
         customer_id = await db_manager.add_customer(final_customer)
         customer_id = 0
         response = {
