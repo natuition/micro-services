@@ -38,6 +38,7 @@ customers = Table(
     UniqueConstraint('email', name='UC_Customer'),
 )
 
+
 """
 CREATE TABLE
     IF NOT EXISTS Robots_of_subscribers(
@@ -66,22 +67,22 @@ CREATE TABLE
         `id` int NOT NULL PRIMARY KEY AUTO_INCREMENT,
         `robot_serial_number` VARCHAR(5) NOT NULL,
         `customer_id` int NOT NULL,
+        CONSTRAINT `Robots_of_customers_customer_id__Customers_id` FOREIGN KEY(`customer_id`) REFERENCES Customers(`id`),
         CONSTRAINT `Robots_of_customers_robot_serial_number__Robot_serial_number` FOREIGN KEY(`robot_serial_number`) REFERENCES Robots(`serial_number`),
-        CONSTRAINT `Robots_of_customers_customer_id__Customers_id` FOREIGN KEY(`customer_id`) REFERENCES Customers(`id`)
     );
 """
-
 robots_of_customers = Table(
     'Robots_of_customers',
     metadata,
     Column('id', Integer, primary_key=True, index=True, autoincrement=True),
     Column('robot_serial_number', String(5), nullable=False),
-    Column('customer_id', Integer(), nullable=False),
+    Column('customer_id', Integer, nullable=False),
     ForeignKeyConstraint(["robot_serial_number"], [
                          "Robots.serial_number"], name="Robots_of_customers_robot_serial_number__Robot_serial_number"),
     ForeignKeyConstraint(["customer_id"], [
                          "Customers.id"], name="Robots_of_customers_customer_id__Customers_id")
 )
+
 
 """
 CREATE TABLE
@@ -104,6 +105,7 @@ robots_monitoring = Table(
                          "Robots.serial_number"], name="Robots_monitoring_robot_serial_number__Robot_serial_number")
 )
 
+
 """
 CREATE TABLE
 IF NOT EXISTS Robots_synthesis(
@@ -125,6 +127,7 @@ robots_synthesis = Table(
                          "Robots.serial_number"], name="Robots_synthesis_robot_serial_number__Robot_serial_number")
 )
 
+
 """
 CREATE TABLE
 IF NOT EXISTS Robots(
@@ -137,6 +140,7 @@ robots = Table(
     Column('serial_number', String(5), primary_key=True,
            index=True)
 )
+
 
 """
 CREATE TABLE
@@ -155,6 +159,7 @@ gps_points = Table(
     Column('latitude', Decimal(20, 18), nullable=False),
     Column('longitude', Decimal(20, 18), nullable=False)
 )
+
 
 """
 CREATE TABLE
@@ -177,6 +182,7 @@ fields = Table(
         ["robot_serial_number"], ["Robots.serial_number"], name="Fields_robot_serial_number__Robot_serial_number")
 )
 
+
 """
 CREATE TABLE
     IF NOT EXISTS Fields_corners(
@@ -198,6 +204,7 @@ fields_corners = Table(
     ForeignKeyConstraint(["gps_point_id"], ["GPS_points.id"],
                          name="Fields_corners_gps_point_id__GPS_points_id")
 )
+
 
 """
 CREATE TABLE
@@ -230,6 +237,7 @@ sessions = Table(
                          "Robots.serial_number"], name="Sessions_robot_serial_number__Robot_serial_number")
 )
 
+
 """
 CREATE TABLE
     IF NOT EXISTS Vesc_statistics(
@@ -250,6 +258,7 @@ vesc_statistics = Table(
     ForeignKeyConstraint(["session_id"], ["Sessions.id"],
                          name="Vesc_statistics_session_id__Sessions_id")
 )
+
 
 """
 CREATE TABLE
@@ -274,6 +283,7 @@ points_of_paths = Table(
     ForeignKeyConstraint(["gps_point_id"], ["GPS_points.id"],
                          name="Points_of_paths_gps_point_id__GPS_points_id")
 )
+
 
 """
 CREATE TABLE
@@ -304,6 +314,7 @@ extracted_weeds = Table(
                          name="Extracted_weeds_session_id__Sessions_id")
 )
 
+
 """
 CREATE TABLE
     IF NOT EXISTS Weed_types(
@@ -319,6 +330,7 @@ weed_types = Table(
     Column('label', String(255), nullable=False),
     UniqueConstraint('label', name='UC_Weed_types')
 )
+
 
 database = Database(DATABASE_URI)
 

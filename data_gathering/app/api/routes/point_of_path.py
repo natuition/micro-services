@@ -29,3 +29,7 @@ async def create_point_of_path(payload: PointOfPathIn):
 @router.get('/points_of_paths', response_model=list[PointOfPathOut])
 async def get_points_of_paths():
     return await db_manager.get_all_points_of_paths()
+
+@router.get('/points_of_path_of_session', response_model=list[PointOfPathOut])
+async def get_points_of_path_of_session(session_id: int):
+    return await db_manager.get_all_points_of_path_of_session(session_id)

@@ -29,3 +29,7 @@ async def create_extracted_weed(payload: ExtractedWeedIn):
 @router.get('/extracted_weeds', response_model=list[ExtractedWeedOut])
 async def get_extracted_weeds():
     return await db_manager.get_all_extracted_weeds()
+
+@router.get('/extracted_weeds_of_session', response_model=list[ExtractedWeedOut])
+async def get_extracted_weeds(session_id: int):
+    return await db_manager.get_all_extracted_weeds_of_session(session_id)

@@ -26,6 +26,10 @@ async def create_field_corner(payload: FieldCornerIn):
                             content={"message": error})
 
 
-@router.get('/fields_corners', response_model=list[FieldCornerOut])
-async def get_fields_corners():
+@router.get('/all_fields_corners', response_model=list[FieldCornerOut])
+async def get_all_fields_corners():
     return await db_manager.get_all_fields_corners()
+
+@router.get('/field_corners', response_model=list[FieldCornerOut])
+async def get_field_corners(field_id: int):
+    return await db_manager.get_field_corners(field_id)
