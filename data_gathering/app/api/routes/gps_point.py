@@ -33,3 +33,12 @@ async def get_all_gps_points():
 @router.get('/gps_point', response_model=GPSPointOut)
 async def get_gps_point(gps_point_id: int):
     return await db_manager.get_gps_point(gps_point_id)
+
+@router.get('/get_last_gps_point_of_robot', response_model=GPSPointOut)
+async def get_last_gps_point_of_robot(robot_serial_number: str):
+    response = await db_manager.get_last_gps_point_of_robot(robot_serial_number)
+    if response:
+        return response
+    else:
+        return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                            content={"message": f"No last GPS POINT for {robot_serial_number}."})

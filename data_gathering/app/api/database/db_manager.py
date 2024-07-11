@@ -15,6 +15,7 @@ from app.api.models.robot_of_customer import RobotOfCustomerIn, RobotOfCustomerO
 from app.api.models.customer import CustomerIn, CustomerOut
 from app.api.database.db import fields, robots, sessions, fields_corners, gps_points, points_of_paths, extracted_weeds, vesc_statistics, weed_types, robots_synthesis, robots_monitoring, database, database_url, robots_of_subscribers, robots_of_customers, customers
 from sqlalchemy import desc, select
+from sqlalchemy.sql.functions import sum
 
 # --- Field ---
 
@@ -173,6 +174,14 @@ async def get_all_extracted_weeds_of_session(session_id: int) -> list[ExtractedW
     query = extracted_weeds.select().where(extracted_weeds.c.session_id == session_id)
     return await database.fetch_all(query=query)
 
+async def get_number_of_extraction_of_last_session_of_robot(robot_serial_number: str):
+    query = select([sessions.c.id, sum(extracted_weeds.c.number)]) \
+    .join(sessions, sessions.c.id == extracted_weeds.c.session_id)\
+    .where(sessions.c.robot_serial_number == robot_serial_number)\
+    .group_by(sessions.c.id)\
+    .order_by(desc(sessions.c.id))
+    return await database.fetch_one(query=query) 
+
 # --- FieldCorner ---
 
 async def add_field_corner(payload: FieldCornerIn):
@@ -202,9 +211,19 @@ async def get_all_gps_points() -> list[GPSPointOut]:
     query = gps_points.select()
     return await database.fetch_all(query=query)
 
+
 async def get_gps_point(gps_point_id : int) -> GPSPointOut:
     query = gps_points.select().where(gps_points.c.id == gps_point_id)
     return await database.fetch_all(query=query)
+
+
+async def get_last_gps_point_of_robot(robot_serial_number: str) -> GPSPointOut:
+    query = select([gps_points.c.id, gps_points.c.latitude, gps_points.c.longitude, gps_points.c.quality]) \
+    .join(points_of_paths, points_of_paths.c.session_id == sessions.c.id)\
+    .join(gps_points, gps_points.c.id == points_of_paths.c.gps_point_id)\
+    .where(sessions.c.robot_serial_number == robot_serial_number)\
+    .order_by(desc(points_of_paths.c.id))
+    return await database.fetch_one(query=query)
 
 # --- PointOfPath ---
 
