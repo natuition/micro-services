@@ -1,5 +1,5 @@
 from app.api.database.enum.role import Role
-from app.api.models.customer import CustomerIn, CustomerOut, CustomerWithoutHash, CustomerCreation
+from app.api.models.customer import CustomerIn, CustomerOut, CustomerWithoutHash, CustomerCreation, CustomerCreationUpdate, CustomerUpdate, CustomerWithoutHashUpdate
 from app.api.database import db_manager
 from app.api.models.http_error import HTTPErrorOut
 from fastapi import APIRouter, status, Depends
@@ -17,6 +17,28 @@ async def create_customer(payload: CustomerCreation):
         hashed_pwd = bcrypt.hashpw(str.encode(payload.password), bcrypt.gensalt(rounds=10))
         final_customer: CustomerIn = CustomerIn(name=payload.name, email=payload.email, phone=payload.phone, role=Role.USER, hash_pwd=hashed_pwd.decode())
         customer_id = await db_manager.add_customer(final_customer)
+        response = {
+            'id': customer_id,
+            **payload.dict()
+        }
+        return response
+    except pymysql.err.IntegrityError as error:
+        return JSONResponse(status_code=status.HTTP_200_OK,
+                            content={"message": error.args[1]})
+    except Exception as error:
+        return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                            content={"message": error})
+
+@router.post('/update_customer_by_email', response_model=CustomerWithoutHashUpdate, status_code=201)
+async def update_customer_by_email(payload: CustomerCreationUpdate, email: str):
+    try:
+        if payload.password is not None:
+            hashed_pwd = bcrypt.hashpw(str.encode(payload.password), bcrypt.gensalt(rounds=10))
+            hashed_pwd = hashed_pwd.decode()
+        else:
+            hashed_pwd = None
+        final_customer: CustomerUpdate = CustomerUpdate(name=payload.name, email=payload.email, phone=payload.phone, role=Role.USER, hash_pwd=hashed_pwd)
+        customer_id = await db_manager.update_customer(final_customer, email)
         response = {
             'id': customer_id,
             **payload.dict()

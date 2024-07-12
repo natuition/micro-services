@@ -12,7 +12,7 @@ from app.api.models.robot_subscriber import RobotSubscriberIn, RobotSubscriberOu
 from app.api.models.robot_monitoring import RobotMonitoringInDB, RobotMonitoringOutDB
 from app.api.models.report import ReportOut, ExtractedWeedWithGPSPointWithWeedTypeOut
 from app.api.models.robot_of_customer import RobotOfCustomerIn, RobotOfCustomerOut, RobotOfCustomerInForm
-from app.api.models.customer import CustomerIn, CustomerOut
+from app.api.models.customer import CustomerIn, CustomerOut, CustomerUpdate
 from app.api.database.db import fields, robots, sessions, fields_corners, gps_points, points_of_paths, extracted_weeds, vesc_statistics, weed_types, robots_synthesis, robots_monitoring, database, database_url, robots_of_subscribers, robots_of_customers, customers
 from sqlalchemy import desc, select
 from sqlalchemy.sql.functions import sum
@@ -347,6 +347,12 @@ async def add_customer(payload: CustomerIn):
     query = customers.insert().values(**payload.dict())
     return await database.execute(query=query)
 
+async def update_customer(payload: CustomerUpdate, email: str):
+    values = {k: v for k, v in payload.dict().items() if v is not None}
+    query = customers.update()\
+    .where(customers.c.email == email)\
+    .values(**values)
+    return await database.execute(query=query)
 
 async def get_all_customers() -> list[CustomerOut]:
     query = customers.select()
