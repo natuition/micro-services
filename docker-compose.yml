@@ -40,6 +40,14 @@ services:
       fleet_database:
         condition: service_healthy
 
+  monitoring_service:
+    build: ./robot_monitoring
+    container_name: robot_monitoring
+    restart: always
+    depends_on:
+      fleet_database:
+        condition: service_healthy
+
   build_report_service:
     build: ./report
     container_name: build_report_service

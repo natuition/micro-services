@@ -4,3 +4,6 @@
 [submodule "monitoring_bot"]
 	path = monitoring_bot
 	url = git@github.com:natuition/monitoring_bot.git
+[submodule "robot_monitoring"]
+	path = robot_monitoring
+	url = git@github.com:natuition/robot_monitoring.git
