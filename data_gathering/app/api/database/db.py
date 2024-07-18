@@ -55,6 +55,7 @@ robots_of_subscribers = Table(
     Column('id', Integer, primary_key=True, index=True, autoincrement=True),
     Column('robot_serial_number', String(5), nullable=False),
     Column('subscriber_username', String(255), nullable=False),
+    Column('subscriber_language', String(255), nullable=False),
     Column('role', Enum(Role), nullable=False, server_default=Role.USER),
     ForeignKeyConstraint(["robot_serial_number"], [
                          "Robots.serial_number"], name="Robots_of_subscribers_robot_serial_number__Robot_serial_number")

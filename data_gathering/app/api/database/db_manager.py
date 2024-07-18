@@ -69,6 +69,11 @@ async def get_all_robot_of_one_subscriber(subscriber_username: str) -> list[Robo
     .where(robots_of_subscribers.c.subscriber_username == subscriber_username)
     return await database.fetch_all(query=query)
 
+async def get_all_subscriber_of_one_robot(robot_serial_number: str) -> list[RobotSubscriberOut]:
+    query = robots_of_subscribers.select() \
+    .where(robots_of_subscribers.c.robot_serial_number == robot_serial_number)
+    return await database.fetch_all(query=query)
+
 
 async def remove_one_robot_of_one_subscriber(subscriber_username: str, robot_serial_number: str):
     query = robots_of_subscribers.delete() \

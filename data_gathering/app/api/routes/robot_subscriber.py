@@ -36,6 +36,10 @@ async def get_all_subscriber_with_robot():
 async def get_all_robot_of_one_subscriber(subscriber_username: str):
     return await db_manager.get_all_robot_of_one_subscriber(subscriber_username)
 
+@router.get('/get_all_subscriber_of_one_robot', response_model=list[RobotSubscriberOut])
+async def get_all_subscriber_of_one_robot(robot_serial_number: str):
+    return await db_manager.get_all_subscriber_of_one_robot(robot_serial_number)
+
 @router.delete('/remove_one_robot_of_one_subscriber', status_code=200)
 async def remove_one_robot_of_one_subscriber(subscriber_username: str, robot_serial_number: str):
     return await db_manager.remove_one_robot_of_one_subscriber(subscriber_username, robot_serial_number)
