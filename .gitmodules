@@ -7,3 +7,6 @@
 [submodule "robot_monitoring"]
 	path = robot_monitoring
 	url = git@github.com:natuition/robot_monitoring.git
+[submodule "data_gathering/app/api/database/enum/shared_class"]
+	path = data_gathering/app/api/database/enum/shared_class
+	url = git@github.com:natuition/shared_class.git

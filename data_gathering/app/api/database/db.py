@@ -2,8 +2,8 @@ import os
 
 from sqlalchemy import (Column, DateTime, Integer, MetaData, String, Table,
                         DECIMAL as Decimal, UniqueConstraint, ForeignKeyConstraint, Enum)
-from app.api.database.enum.robot_monitoring import RobotMonitoring
-from app.api.database.enum.robot_synthesis import RobotSynthesis
+from app.api.database.enum.shared_class.robot_monitoring import RobotMonitoring
+from app.api.database.enum.shared_class.robot_synthesis import RobotSynthesis
 from app.api.database.enum.role import Role
 
 from databases import Database, DatabaseURL

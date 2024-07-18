@@ -1,4 +1,4 @@
-from app.api.database.enum.robot_monitoring import RobotMonitoring
+from app.api.database.enum.shared_class.robot_monitoring import RobotMonitoring
 from pydantic import BaseModel, Field
 from datetime import datetime
 
