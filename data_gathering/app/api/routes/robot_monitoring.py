@@ -12,21 +12,18 @@ router = APIRouter(
     responses={400: {"model": HTTPErrorOut}, 500: {"model": HTTPErrorOut}})
 
 
-@router.post('/robot_monitoring', response_model=list[RobotMonitoringOutDB], status_code=201)
-async def create_robot_monitoring(payload: list[RobotMonitoringIn]):
+@router.post('/robot_monitoring', response_model=RobotMonitoringOutDB, status_code=201)
+async def create_robot_monitoring(payload: RobotMonitoringIn):
     heartbeat_timestamp = datetime.now(pytz.timezone('Europe/Berlin'))
-    robots_monitoring_out_DB = list()
     try:
-        for robot_monitoring_in in payload:
-            args = robot_monitoring_in.dict()
-            args["heartbeat_timestamp"] = heartbeat_timestamp
-            robot_monitoring_in_db = RobotMonitoringInDB(**args)
-            robot_monitoring_out_DB_id = await db_manager.add_robot_monitoring(robot_monitoring_in_db)
-            robots_monitoring_out_DB.append({
-                'id': robot_monitoring_out_DB_id,
-                **robot_monitoring_in_db.dict()
-            })
-        return robots_monitoring_out_DB
+        args = payload.dict()
+        args["heartbeat_timestamp"] = heartbeat_timestamp
+        robot_monitoring_in_db = RobotMonitoringInDB(**args)
+        robot_monitoring_out_DB_id = await db_manager.add_robot_monitoring(robot_monitoring_in_db)
+        return{
+            'id': robot_monitoring_out_DB_id,
+            **robot_monitoring_in_db.dict()
+        }
     except pymysql.err.IntegrityError as error:
         return JSONResponse(status_code=status.HTTP_400_BAD_REQUEST,
                             content={"message": error.args[1]})
