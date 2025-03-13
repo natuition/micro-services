@@ -1,4 +1,4 @@
-FROM mysql:latest
+FROM mysql:lts
 
 #COPY ./create-table-template.sql /docker-entrypoint-initdb.d/initdb.sql
 
