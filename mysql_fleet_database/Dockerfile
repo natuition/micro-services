@@ -1,5 +1,5 @@
-FROM mysql:latest
+FROM mysql:lts
 
-COPY ./create-table-template.sql /docker-entrypoint-initdb.d/initdb.sql
+#COPY ./create-table-template.sql /docker-entrypoint-initdb.d/initdb.sql
 
 EXPOSE 3306/tcp

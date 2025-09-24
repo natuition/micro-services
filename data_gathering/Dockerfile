@@ -15,4 +15,4 @@ RUN /local/venv/bin/pip install -r requirements.txt
 
 COPY . /app/
 
-CMD . /local/venv/bin/activate && uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+CMD . /local/venv/bin/activate && uvicorn app.main:app --reload --host 0.0.0.0 --port 8000 --log-level warning

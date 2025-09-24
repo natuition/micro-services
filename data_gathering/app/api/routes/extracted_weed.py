@@ -29,3 +29,14 @@ async def create_extracted_weed(payload: ExtractedWeedIn):
 @router.get('/extracted_weeds', response_model=list[ExtractedWeedOut])
 async def get_extracted_weeds():
     return await db_manager.get_all_extracted_weeds()
+
+@router.get('/extracted_weeds_of_session', response_model=list[ExtractedWeedOut])
+async def get_extracted_weeds(session_id: int):
+    return await db_manager.get_all_extracted_weeds_of_session(session_id)
+
+@router.get('/number_of_extraction_of_last_session_of_robot', response_model=int)
+async def get_number_of_extraction_of_last_session_of_robot(robot_serial_number: str):
+    res = await db_manager.get_number_of_extraction_of_last_session_of_robot(robot_serial_number)
+    if res:
+        return int(res[1])
+    return 0

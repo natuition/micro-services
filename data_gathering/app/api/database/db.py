@@ -2,13 +2,110 @@ import os
 
 from sqlalchemy import (Column, DateTime, Integer, MetaData, String, Table,
                         DECIMAL as Decimal, UniqueConstraint, ForeignKeyConstraint, Enum)
-from app.api.database.robotSynthesis import RobotSynthesis
+from app.api.database.enum.shared_class.robot_monitoring import RobotMonitoring
+from app.api.database.enum.shared_class.robot_synthesis import RobotSynthesis
+from app.api.database.enum.role import Role
 
 from databases import Database, DatabaseURL
 
 DATABASE_URI = os.getenv('DATABASE_URI')
 
 metadata = MetaData()
+
+"""
+CREATE TABLE
+    IF NOT EXISTS Customers(
+        `id` int NOT NULL PRIMARY KEY AUTO_INCREMENT,
+        `name` VARCHAR(255) NOT NULL,
+        `email` VARCHAR(255) NOT NULL,
+        `phone` VARCHAR(20) NOT NULL COMMENT 'Customer phone with area code',
+        `hash_pwd` VARCHAR(255) NOT NULL COMMENT 'Customer pwd in MD5',
+        `hash_rt` VARCHAR(255) NULL COMMENT 'Customer token in MD5',
+        `role` ENUM ('ADMIN','DISTRIBUTOR','USER') NOT NULL COMMENT 'Customer role',
+        CONSTRAINT `UC_Customer` UNIQUE (email)
+    );
+"""
+customers = Table(
+    'Customers',
+    metadata,
+    Column('id', Integer, primary_key=True, index=True, autoincrement=True),
+    Column('name', String(255), nullable=False),
+    Column('email', String(255), nullable=False),
+    Column('phone', String(20), nullable=False),
+    Column('hash_pwd', String(255), nullable=False),
+    Column('hash_rt', String(255), nullable=True),
+    Column('role', Enum(Role), nullable=False, server_default=Role.USER),
+    UniqueConstraint('email', name='UC_Customer'),
+)
+
+
+"""
+CREATE TABLE
+    IF NOT EXISTS Robots_of_subscribers(
+        `id` int NOT NULL PRIMARY KEY AUTO_INCREMENT,
+        `robot_serial_number` VARCHAR(5) NOT NULL,
+        `subscriber_username` VARCHAR(255) NOT NULL,
+        `role` ENUM ('ADMIN','DISTRIBUTOR','USER') NOT NULL,
+        CONSTRAINT `Robots_of_subscribers_robot_serial_number__Robot_serial_number` FOREIGN KEY(`robot_serial_number`) REFERENCES Robots(`serial_number`),
+    );
+"""
+robots_of_subscribers = Table(
+    'Robots_of_subscribers',
+    metadata,
+    Column('id', Integer, primary_key=True, index=True, autoincrement=True),
+    Column('robot_serial_number', String(5), nullable=False),
+    Column('subscriber_username', String(255), nullable=False),
+    Column('subscriber_language', String(255), nullable=False),
+    Column('role', Enum(Role), nullable=False, server_default=Role.USER),
+    ForeignKeyConstraint(["robot_serial_number"], [
+                         "Robots.serial_number"], name="Robots_of_subscribers_robot_serial_number__Robot_serial_number")
+)
+
+
+"""
+CREATE TABLE
+    IF NOT EXISTS Robots_of_customers(
+        `id` int NOT NULL PRIMARY KEY AUTO_INCREMENT,
+        `robot_serial_number` VARCHAR(5) NOT NULL,
+        `customer_id` int NOT NULL,
+        CONSTRAINT `Robots_of_customers_customer_id__Customers_id` FOREIGN KEY(`customer_id`) REFERENCES Customers(`id`),
+        CONSTRAINT `Robots_of_customers_robot_serial_number__Robot_serial_number` FOREIGN KEY(`robot_serial_number`) REFERENCES Robots(`serial_number`),
+    );
+"""
+robots_of_customers = Table(
+    'Robots_of_customers',
+    metadata,
+    Column('id', Integer, primary_key=True, index=True, autoincrement=True),
+    Column('robot_serial_number', String(5), nullable=False),
+    Column('customer_id', Integer, nullable=False),
+    ForeignKeyConstraint(["robot_serial_number"], [
+                         "Robots.serial_number"], name="Robots_of_customers_robot_serial_number__Robot_serial_number"),
+    ForeignKeyConstraint(["customer_id"], [
+                         "Customers.id"], name="Robots_of_customers_customer_id__Customers_id")
+)
+
+
+"""
+CREATE TABLE
+IF NOT EXISTS Robots_monitoring(
+    'id' int NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    `heartbeat_timestamp` datetime NOT NULL,
+    'robot_monitoring' enum ('BLOCKING_PAGE_1_TO_2', 'BLOCKING_DURING_OPERATION') NOT NULL,
+    `robot_serial_number` VARCHAR(5) NOT NULL,
+    CONSTRAINT `Robots_monitoring_robot_serial_number__Robot_serial_number` FOREIGN KEY(`robot_serial_number`) REFERENCES Robots(`serial_number`)
+);
+"""
+robots_monitoring = Table(
+    'Robots_monitoring',
+    metadata,
+    Column('id', Integer, primary_key=True, index=True, autoincrement=True),
+    Column('heartbeat_timestamp', DateTime, nullable=False),
+    Column('robot_monitoring', Enum(RobotMonitoring), nullable=False),
+    Column('robot_serial_number', String(5), nullable=False),
+    ForeignKeyConstraint(["robot_serial_number"], [
+                         "Robots.serial_number"], name="Robots_monitoring_robot_serial_number__Robot_serial_number")
+)
+
 
 """
 CREATE TABLE
@@ -24,12 +121,13 @@ robots_synthesis = Table(
     'Robots_synthesis',
     metadata,
     Column('id', Integer, primary_key=True, index=True, autoincrement=True),
-    Column('heartbeat_timestamp', DateTime),
-    Column('robot_synthesis', Enum(RobotSynthesis)),
-    Column('robot_serial_number', String(5)),
+    Column('heartbeat_timestamp', DateTime, nullable=False),
+    Column('robot_synthesis', Enum(RobotSynthesis), nullable=False),
+    Column('robot_serial_number', String(5), nullable=False),
     ForeignKeyConstraint(["robot_serial_number"], [
                          "Robots.serial_number"], name="Robots_synthesis_robot_serial_number__Robot_serial_number")
 )
+
 
 """
 CREATE TABLE
@@ -44,6 +142,7 @@ robots = Table(
            index=True)
 )
 
+
 """
 CREATE TABLE
     IF NOT EXISTS GPS_points(
@@ -57,10 +156,11 @@ gps_points = Table(
     'GPS_points',
     metadata,
     Column('id', Integer, primary_key=True, index=True, autoincrement=True),
-    Column('quality', Integer),
-    Column('latitude', Decimal(20, 18)),
-    Column('longitude', Decimal(20, 18))
+    Column('quality', Integer, nullable=False),
+    Column('latitude', Decimal(20, 18), nullable=False),
+    Column('longitude', Decimal(20, 18), nullable=False)
 )
+
 
 """
 CREATE TABLE
@@ -76,12 +176,13 @@ fields = Table(
     'Fields',
     metadata,
     Column('id', Integer, primary_key=True, index=True, autoincrement=True),
-    Column('label', String(255)),
-    Column('robot_serial_number', String(5)),
+    Column('label', String(255), nullable=False),
+    Column('robot_serial_number', String(5), nullable=False),
     UniqueConstraint('label', 'robot_serial_number', name='UC_Fields'),
     ForeignKeyConstraint(
         ["robot_serial_number"], ["Robots.serial_number"], name="Fields_robot_serial_number__Robot_serial_number")
 )
+
 
 """
 CREATE TABLE
@@ -97,13 +198,14 @@ fields_corners = Table(
     'Fields_corners',
     metadata,
     Column('id', Integer, primary_key=True, index=True, autoincrement=True),
-    Column('field_id', Integer),
-    Column('gps_point_id', Integer),
+    Column('field_id', Integer, nullable=False),
+    Column('gps_point_id', Integer, nullable=False),
     ForeignKeyConstraint(["field_id"], ["Fields.id"],
                          name="Fields_corners_field_id__Fields_id"),
     ForeignKeyConstraint(["gps_point_id"], ["GPS_points.id"],
                          name="Fields_corners_gps_point_id__GPS_points_id")
 )
+
 
 """
 CREATE TABLE
@@ -123,18 +225,19 @@ sessions = Table(
     'Sessions',
     metadata,
     Column('id', Integer, primary_key=True, index=True, autoincrement=True),
-    Column('start_time', DateTime),
-    Column('end_time', DateTime),
-    Column('field_id', Integer),
-    Column('robot_serial_number', String(5)),
+    Column('start_time', DateTime, nullable=False),
+    Column('end_time', DateTime, nullable=False),
+    Column('field_id', Integer, nullable=False),
+    Column('robot_serial_number', String(5), nullable=False),
     Column('previous_sessions_id', Integer, nullable=True),
-    ForeignKeyConstraint(["id"], ["Sessions.id"],
+    ForeignKeyConstraint(["previous_sessions_id"], ["Sessions.id"],
                          name="Sessions_previous_sessions_id__Sessions_id", ondelete="CASCADE", use_alter=True),
     ForeignKeyConstraint(["field_id"], ["Fields.id"],
                          name="Sessions_field_id__Fields_id"),
     ForeignKeyConstraint(["robot_serial_number"], [
                          "Robots.serial_number"], name="Sessions_robot_serial_number__Robot_serial_number")
 )
+
 
 """
 CREATE TABLE
@@ -150,12 +253,13 @@ vesc_statistics = Table(
     'Vesc_statistics',
     metadata,
     Column('id', Integer, primary_key=True, index=True, autoincrement=True),
-    Column('session_id', Integer),
-    Column('voltage', Decimal(5, 2)),
-    Column('timestamp', DateTime),
+    Column('session_id', Integer, nullable=False),
+    Column('voltage', Decimal(5, 2), nullable=False),
+    Column('timestamp', DateTime, nullable=False),
     ForeignKeyConstraint(["session_id"], ["Sessions.id"],
                          name="Vesc_statistics_session_id__Sessions_id")
 )
+
 
 """
 CREATE TABLE
@@ -172,14 +276,15 @@ points_of_paths = Table(
     'Points_of_paths',
     metadata,
     Column('id', Integer, primary_key=True, index=True, autoincrement=True),
-    Column('point_number', Integer),
-    Column('session_id', Integer),
-    Column('gps_point_id', Integer),
+    Column('point_number', Integer, nullable=False),
+    Column('session_id', Integer, nullable=False),
+    Column('gps_point_id', Integer, nullable=False),
     ForeignKeyConstraint(["session_id"], ["Sessions.id"],
                          name="Points_of_paths_session_id__Sessions_id"),
     ForeignKeyConstraint(["gps_point_id"], ["GPS_points.id"],
                          name="Points_of_paths_gps_point_id__GPS_points_id")
 )
+
 
 """
 CREATE TABLE
@@ -198,9 +303,9 @@ extracted_weeds = Table(
     'Extracted_weeds',
     metadata,
     Column('id', Integer, primary_key=True, index=True, autoincrement=True),
-    Column('point_of_path_id', Integer),
-    Column('weed_type_id', Integer),
-    Column('session_id', Integer),
+    Column('point_of_path_id', Integer, nullable=False),
+    Column('weed_type_id', Integer, nullable=False),
+    Column('session_id', Integer, nullable=False),
     Column('number', Integer),
     ForeignKeyConstraint(["point_of_path_id"], ["Points_of_paths.id"],
                          name="Extracted_weeds_point_of_path_id__Points_of_paths_id"),
@@ -209,6 +314,7 @@ extracted_weeds = Table(
     ForeignKeyConstraint(["session_id"], ["Sessions.id"],
                          name="Extracted_weeds_session_id__Sessions_id")
 )
+
 
 """
 CREATE TABLE
@@ -222,9 +328,10 @@ weed_types = Table(
     'Weed_types',
     metadata,
     Column('id', Integer, primary_key=True, index=True, autoincrement=True),
-    Column('label', String(255)),
+    Column('label', String(255), nullable=False),
     UniqueConstraint('label', name='UC_Weed_types')
 )
+
 
 database = Database(DATABASE_URI)
 

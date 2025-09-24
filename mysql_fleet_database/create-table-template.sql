@@ -1,4 +1,8 @@
+"""
+Created by api :
+"""
 
+"""
 CREATE TABLE
     IF NOT EXISTS Customers(
         `id` int NOT NULL PRIMARY KEY AUTO_INCREMENT,
@@ -24,10 +28,6 @@ CREATE TABLE
         CONSTRAINT `Robots_of_customers_robot_serial_number__Robot_serial_number` FOREIGN KEY(`robot_serial_number`) REFERENCES Robots(`serial_number`),
         CONSTRAINT `Robots_of_customers_customer_id__Customers_id` FOREIGN KEY(`customer_id`) REFERENCES Customers(`id`)
     );
-
-"""
-Created by api :
-"""
 
 CREATE TABLE
     IF NOT EXISTS GPS_points(
@@ -113,3 +113,4 @@ CREATE TABLE
         `robot_serial_number` VARCHAR(5) NOT NULL,
         CONSTRAINT `Robots_synthesis_robot_serial_number__Robot_serial_number` FOREIGN KEY(`robot_serial_number`) REFERENCES Robots(`serial_number`)
     );
+"""

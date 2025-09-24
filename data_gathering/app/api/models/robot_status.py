@@ -1,4 +1,4 @@
-from app.api.database.robotSynthesis import RobotSynthesis
+from app.api.database.enum.shared_class.robot_synthesis import RobotSynthesis
 from pydantic import BaseModel, Field
 from datetime import datetime
 
