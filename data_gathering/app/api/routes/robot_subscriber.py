@@ -2,7 +2,7 @@ from app.api.models.robot_subscriber import RobotSubscriberIn, RobotSubscriberOu
 from app.api.models.robot import RobotOut
 from app.api.database import db_manager
 from app.api.models.http_error import HTTPErrorOut
-from app.api.database.role import has_right_role
+from app.api.database.enum.role import has_right_role
 from app.auth.auth_bearer import JWTBearer
 from app.auth.token import Token
 from fastapi import APIRouter, status, Depends
@@ -43,7 +43,7 @@ async def get_all_robot_of_one_subscriber(subscriber_username: str, token: str =
 
 @router.get('/get_all_subscriber_of_one_robot', response_model=list[RobotSubscriberOut])
 async def get_all_subscriber_of_one_robot(robot_serial_number: str, token: str = Depends(JWTBearer())):
-    has_right_role(Token(token).customer_role)`
+    has_right_role(Token(token).customer_role)
     return await db_manager.get_all_subscriber_of_one_robot(robot_serial_number)
 
 @router.delete('/remove_one_robot_of_one_subscriber', status_code=200)

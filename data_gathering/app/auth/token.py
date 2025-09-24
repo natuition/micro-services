@@ -1,6 +1,6 @@
 import time
 from app.api.models.customer import CustomerOut
-from app.api.database.role import Role
+from app.api.database.enum.role import Role
 
 class Token:
 

@@ -1,4 +1,4 @@
-from app.api.database.role import Role, has_right_role
+from app.api.database.enum.role import Role, has_right_role
 from app.auth.auth_bearer import JWTBearer
 from app.auth.token import Token
 from app.api.models.extracted_weed import ExtractedWeedIn, ExtractedWeedOut

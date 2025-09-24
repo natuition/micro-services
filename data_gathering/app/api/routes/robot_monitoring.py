@@ -2,7 +2,7 @@ from app.api.models.robot_monitoring import RobotMonitoringIn, RobotMonitoringIn
 from datetime import datetime
 from app.api.database import db_manager
 from app.api.models.http_error import HTTPErrorOut
-from app.api.database.role import has_right_role
+from app.api.database.enum.role import has_right_role
 from app.auth.auth_bearer import JWTBearer
 from app.auth.token import Token
 from fastapi import APIRouter, status, Depends
