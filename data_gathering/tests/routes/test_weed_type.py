@@ -5,7 +5,7 @@ from sqlalchemy.dialects import mysql
 
 def test_create_weed_type(client):
     response = client.post(
-        "/api/v1/data_gathering/weed_type",
+        "/api/violette/v2/weed_type",
         json={
             "label": "Daisy"
         },
@@ -16,7 +16,7 @@ def test_create_weed_type(client):
 
 
 def test_get_list_weeds_types_empty(client):
-    response = client.get("/api/v1/data_gathering/weeds_types")
+    response = client.get("/api/violette/v2/weeds_types")
     assert response.status_code == 200
     assert response.json() == []
 
@@ -29,7 +29,7 @@ def test_get_list_weeds_types_with_one(client, cursor_cnx):
     )
     cursor_cnx[0].execute(query)
     cursor_cnx[1].commit()
-    response = client.get("/api/v1/data_gathering/weeds_types")
+    response = client.get("/api/violette/v2/weeds_types")
     assert response.status_code == 200
     assert response.json() == [{"id": 1, "label": "Daisy"}]
 
@@ -43,7 +43,7 @@ def test_get_list_weeds_types_with_multiple(client, cursor_cnx):
         )
         cursor_cnx[0].execute(query)
         cursor_cnx[1].commit()
-    response = client.get("/api/v1/data_gathering/weeds_types")
+    response = client.get("/api/violette/v2/weeds_types")
     assert response.status_code == 200
     assert response.json() == [{"id": 1, "label": "Daisy"}, {
         "id": 2, "label": "Plantain"}]

@@ -1,7 +1,10 @@
+from app.api.database.role import Role, has_right_role
+from app.auth.auth_bearer import JWTBearer
+from app.auth.token import Token
 from app.api.models.session import SessionIn, SessionOut, SessionUpdate
 from app.api.database import db_manager
 from app.api.models.http_error import HTTPErrorOut
-from fastapi import APIRouter, status
+from fastapi import APIRouter, status, Depends
 from fastapi.responses import JSONResponse
 import pymysql
 
@@ -10,7 +13,8 @@ router = APIRouter(
 
 
 @router.post('/session', response_model=SessionOut, status_code=201)
-async def create_session(payload: SessionIn):
+async def create_session(payload: SessionIn, token: str = Depends(JWTBearer())):
+    has_right_role(Token(token).customer_role, role_list=[Role.ROBOT])
     try:
         session_id = await db_manager.add_session(payload)
         response = {
@@ -27,23 +31,28 @@ async def create_session(payload: SessionIn):
 
 
 @router.get('/sessions', response_model=list[SessionOut])
-async def get_sessions():
+async def get_sessions(token: str = Depends(JWTBearer())):
+    has_right_role(Token(token).customer_role)
     return await db_manager.get_all_sessions()
 
 @router.get('/sessions_of_robot', response_model=list[SessionOut])
-async def get_sessions_of_robot(robot_sn: str):
+async def get_sessions_of_robot(robot_sn: str, token: str = Depends(JWTBearer())):
+    has_right_role(Token(token).customer_role, role_list=[Role.USER])
     return await db_manager.get_all_sessions_of_robot(robot_sn)
 
 @router.get('/last_session_of_robot', response_model=SessionOut)
-async def get_last_session_of_robot(robot_sn: str):
+async def get_last_session_of_robot(robot_sn: str, token: str = Depends(JWTBearer())):
+    has_right_role(Token(token).customer_role, role_list=[Role.USER])
     return await db_manager.get_last_session_of_robot(robot_sn)
 
 @router.get('/10_sessions_of_robot', response_model=list[SessionOut])
-async def get_10_sessions_of_robot(robot_sn: str, offset: int = 0):
+async def get_10_sessions_of_robot(robot_sn: str, offset: int = 0, token: str = Depends(JWTBearer())):
+    has_right_role(Token(token).customer_role, role_list=[Role.USER])
     return await db_manager.get_last_10_sessions_of_robot_with_offset(robot_sn, offset)
 
 @router.patch('/session/{id}', status_code=200)
-async def update_session(id: int, payload: SessionUpdate):
+async def update_session(id: int, payload: SessionUpdate, token: str = Depends(JWTBearer())):
+    has_right_role(Token(token).customer_role, role_list=[Role.ROBOT])
     try:
         await db_manager.update_session(id, payload)
         updated_session = await db_manager.get_session(id)

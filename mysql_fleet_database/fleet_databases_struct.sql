@@ -28,6 +28,8 @@ CREATE TABLE `Customers` (
   `email` varchar(255) NOT NULL,
   `phone` varchar(20) NOT NULL COMMENT 'Customer phone with area code',
   `hash_pwd` varchar(255) NOT NULL COMMENT 'Customer pwd in MD5',
+  `hash_rt`  varchar(255) NULL COMMENT 'Hashed refresh token',
+  `role`     enum ('admin', 'distributor', 'user') default 'user' NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `UC_Customer` (`email`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;

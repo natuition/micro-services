@@ -1,7 +1,10 @@
+from app.api.database.role import Role, has_right_role
+from app.auth.auth_bearer import JWTBearer
+from app.auth.token import Token
 from app.api.models.field import FieldIn, FieldOut, FieldWithGPSPoints
 from app.api.database import db_manager
 from app.api.models.http_error import HTTPErrorOut
-from fastapi import APIRouter, status
+from fastapi import APIRouter, status, Depends
 from fastapi.responses import JSONResponse
 import pymysql
 
@@ -10,7 +13,8 @@ router = APIRouter(
 
 
 @router.post('/field', response_model=FieldOut, status_code=201, responses={200: {"model": FieldOut}})
-async def create_field(payload: FieldIn):
+async def create_field(payload: FieldIn, token: str = Depends(JWTBearer())):
+    has_right_role(Token(token).customer_role, role_list=[Role.ROBOT])
     try:
         field_id = await db_manager.add_field(payload)
         response = {
@@ -37,9 +41,11 @@ async def create_field(payload: FieldIn):
 
 
 @router.get('/fields', response_model=list[FieldOut])
-async def get_fields():
+async def get_fields(token: str = Depends(JWTBearer())):
+    has_right_role(Token(token).customer_role)
     return await db_manager.get_all_fields()
 
 @router.get('/field_of_session', response_model=FieldWithGPSPoints)
-async def get_field_of_session(session_id: int):
+async def get_field_of_session(session_id: int, token: str = Depends(JWTBearer())):
+    has_right_role(Token(token).customer_role, role_list=[Role.USER])
     return await db_manager.get_field_of_session(session_id)

@@ -11,8 +11,9 @@ from app.api.models.robot_status import RobotStatusInDB, RobotStatusOutDB
 from app.api.models.robot_subscriber import RobotSubscriberIn, RobotSubscriberOut
 from app.api.models.robot_monitoring import RobotMonitoringInDB, RobotMonitoringOutDB
 from app.api.models.report import ReportOut, ExtractedWeedWithGPSPointWithWeedTypeOut
-from app.api.models.robot_of_customer import RobotOfCustomerIn, RobotOfCustomerOut, RobotOfCustomerInForm
+from app.api.models.robot_of_customer import RobotOfCustomerOut, RobotOfCustomerInForm
 from app.api.models.customer import CustomerIn, CustomerOut, CustomerUpdate
+from app.api.models.robot_of_customer import RobotOfCustomer
 from app.api.database.db import fields, robots, sessions, fields_corners, gps_points, points_of_paths, extracted_weeds, vesc_statistics, weed_types, robots_synthesis, robots_monitoring, database, database_url, robots_of_subscribers, robots_of_customers, customers
 from sqlalchemy import desc, select
 from sqlalchemy.sql.functions import sum
@@ -23,11 +24,25 @@ async def add_field(payload: FieldIn):
     query = fields.insert().values(**payload.dict())
     return await database.execute(query=query)
 
-
 async def get_all_fields() -> list[FieldOut]:
     query = fields.select()
     return await database.fetch_all(query=query)
 
+async def get_field_of_session(session_id: int) -> FieldWithGPSPoints:
+    session_query = sessions.select().where(sessions.c.id == session_id)
+    res_session: SessionOut= await database.fetch_one(query=session_query)
+
+    field_query = fields.select().where(fields.c.id == res_session.field_id)
+    res_field: FieldOut= await database.fetch_one(query=field_query)
+
+    fields_corners_gps_points_query = gps_points.select().join(fields_corners, gps_points.c.id == fields_corners.c.gps_point_id).where(fields_corners.c.field_id == res_field.id)
+    res_fields_corners_gps_points: list[GPSPointOut] = await database.fetch_all(query=fields_corners_gps_points_query)
+
+    return {
+        "session": res_session,
+        "field": res_field,
+        "fields_corners": res_fields_corners_gps_points
+    }
 
 async def get_field(payload: FieldIn) -> FieldOut:
     query = fields.select().where(
@@ -115,9 +130,12 @@ async def add_robot(payload: RobotIn):
 
     return await database.execute(query=query)
 
-
 async def get_all_robots() -> list[RobotOut]:
     query = robots.select()
+    return await database.fetch_all(query=query)
+
+async def get_all_robots_of_customer(customer: CustomerOut) -> list[RobotOfCustomer]:
+    query = robots_of_customers.select().where(robots_of_customers.c.customer_id == customer.id)
     return await database.fetch_all(query=query)
 
 # --- Session ---
@@ -126,7 +144,6 @@ async def add_session(payload: SessionIn):
     query = sessions.insert().values(**payload.dict())
 
     return await database.execute(query=query)
-
 
 async def get_all_sessions() -> list[SessionOut]:
     query = sessions.select()
@@ -152,7 +169,6 @@ async def get_session(id: int) -> SessionOut:
     query = sessions.select().where(sessions.c.id == id)
     return await database.fetch_one(query=query)
 
-
 async def update_session(id: int, payload: SessionUpdate):
     query = (
         sessions
@@ -168,7 +184,6 @@ async def add_extracted_weed(payload: ExtractedWeedIn):
     query = extracted_weeds.insert().values(**payload.dict())
 
     return await database.execute(query=query)
-
 
 async def get_all_extracted_weeds() -> list[ExtractedWeedOut]:
     query = extracted_weeds.select()
@@ -194,7 +209,6 @@ async def add_field_corner(payload: FieldCornerIn):
 
     return await database.execute(query=query)
 
-
 async def get_all_fields_corners() -> list[FieldCornerOut]:
     query = fields_corners.select()
     return await database.fetch_all(query=query)
@@ -210,7 +224,6 @@ async def add_gps_point(payload: GPSPointIn):
     query = gps_points.insert().values(**payload.dict())
 
     return await database.execute(query=query)
-
 
 async def get_all_gps_points() -> list[GPSPointOut]:
     query = gps_points.select()
@@ -237,7 +250,6 @@ async def add_point_of_path(payload: PointOfPathIn):
 
     return await database.execute(query=query)
 
-
 async def get_all_points_of_paths() -> list[PointOfPathOut]:
     query = points_of_paths.select()
     return await database.fetch_all(query=query)
@@ -253,7 +265,6 @@ async def add_vesc_statistic(payload: VescStatisticIn):
     query = vesc_statistics.insert().values(**payload.dict())
 
     return await database.execute(query=query)
-
 
 async def get_all_vesc_statistics() -> list[VescStatisticOut]:
     query = vesc_statistics.select()
@@ -271,11 +282,9 @@ async def add_weed_type(payload: WeedTypeIn):
 
     return await database.execute(query=query)
 
-
 async def get_all_weed_types() -> list[WeedTypeOut]:
     query = weed_types.select()
     return await database.fetch_all(query=query)
-
 
 async def get_weed_type(payload: WeedTypeIn) -> WeedTypeOut:
     query = weed_types.select().where(
@@ -297,7 +306,6 @@ async def deletion_of_all_data_from_the_database():
 async def add_robot_synthesis(payload: RobotStatusInDB):
     query = robots_synthesis.insert().values(**payload.dict())
     return await database.execute(query=query)
-
 
 async def get_robot_synthesis(serial_number: str) -> RobotStatusOutDB:
     query = robots_synthesis.select().where(

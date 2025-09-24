@@ -45,6 +45,7 @@ CREATE TABLE
         `id` int NOT NULL PRIMARY KEY AUTO_INCREMENT,
         `robot_serial_number` VARCHAR(5) NOT NULL,
         `subscriber_username` VARCHAR(255) NOT NULL,
+        `subscriber_language` VARCHAR(255) NOT NULL,
         `role` ENUM ('ADMIN','DISTRIBUTOR','USER') NOT NULL,
         CONSTRAINT `Robots_of_subscribers_robot_serial_number__Robot_serial_number` FOREIGN KEY(`robot_serial_number`) REFERENCES Robots(`serial_number`),
     );
@@ -117,6 +118,7 @@ IF NOT EXISTS Robots_synthesis(
     CONSTRAINT `Robots_synthesis_robot_serial_number__Robot_serial_number` FOREIGN KEY(`robot_serial_number`) REFERENCES Robots(`serial_number`)
 );
 """
+
 robots_synthesis = Table(
     'Robots_synthesis',
     metadata,
@@ -135,6 +137,7 @@ IF NOT EXISTS Robots(
     `serial_number` VARCHAR(5) NOT NULL PRIMARY KEY
 );
 """
+
 robots = Table(
     'Robots',
     metadata,
@@ -152,6 +155,7 @@ CREATE TABLE
         `longitude` DECIMAL(20, 18) NOT NULL
     );
 """
+
 gps_points = Table(
     'GPS_points',
     metadata,
@@ -172,6 +176,7 @@ CREATE TABLE
         CONSTRAINT `UC_Fields` UNIQUE (label, robot_serial_number)
     );
 """
+
 fields = Table(
     'Fields',
     metadata,
@@ -194,6 +199,7 @@ CREATE TABLE
         CONSTRAINT `Fields_corners_gps_point_id__GPS_points_id` FOREIGN KEY(`gps_point_id`) REFERENCES GPS_points(`id`)
     );
 """
+
 fields_corners = Table(
     'Fields_corners',
     metadata,
@@ -213,14 +219,15 @@ CREATE TABLE
         `id` int NOT NULL PRIMARY KEY AUTO_INCREMENT,
         `start_time` TIMESTAMP(0) NOT NULL,
         `end_time` TIMESTAMP(0) NOT NULL,
-        `previous_sessions_id` int NULL,
-        `robot_serial_number` VARCHAR(5) NOT NULL,
         `field_id` int NOT NULL,
+        `robot_serial_number` VARCHAR(5) NOT NULL,
+        `previous_sessions_id` int NULL,
         CONSTRAINT `Sessions_previous_sessions_id__Sessions_id` FOREIGN KEY(`previous_sessions_id`) REFERENCES Sessions(`id`),
         CONSTRAINT `Sessions_robot_serial_number__Robot_serial_number` FOREIGN KEY(`robot_serial_number`) REFERENCES Robots(`serial_number`),
         CONSTRAINT `Sessions_field_id__Fields_id` FOREIGN KEY(`field_id`) REFERENCES Fields(`id`)
     );
 """
+
 sessions = Table(
     'Sessions',
     metadata,
@@ -249,6 +256,7 @@ CREATE TABLE
         CONSTRAINT `Vesc_statistics_session_id__Sessions_id` FOREIGN KEY(`session_id`) REFERENCES Sessions(`id`)
     );
 """
+
 vesc_statistics = Table(
     'Vesc_statistics',
     metadata,
@@ -272,6 +280,7 @@ CREATE TABLE
         CONSTRAINT `Points_of_paths_gps_point_id__GPS_points_id` FOREIGN KEY(`gps_point_id`) REFERENCES GPS_points(`id`)
     );
 """
+
 points_of_paths = Table(
     'Points_of_paths',
     metadata,
@@ -324,6 +333,7 @@ CREATE TABLE
         CONSTRAINT `UC_Weed_types` UNIQUE (label)
     );
 """
+
 weed_types = Table(
     'Weed_types',
     metadata,

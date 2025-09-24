@@ -36,3 +36,11 @@ class CustomerWithoutHashUpdate(BaseModel):
 class CustomerUpdate(CustomerWithoutHashUpdate):
     hash_pwd: Optional[str] = Field(None)
     hash_rt: Optional[str] = Field(None)
+    
+class CustomerLogin(BaseModel):
+    email: str = Field(example="v.lambert@natuition.com")
+    hash_pwd: str
+
+class CustomerToken(BaseModel):
+    access_token: str
+    token_type: str = "bearer"
