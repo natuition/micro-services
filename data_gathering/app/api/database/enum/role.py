@@ -2,10 +2,10 @@ from enum import Enum
 from fastapi import HTTPException
 
 class Role(str, Enum):
-    ADMIN = "admin"
-    DISTRIBUTOR = "distributor"
-    USER = "user"
-    ROBOT = "robot"
+    ADMIN = "ADMIN"
+    DISTRIBUTOR = "DISTRIBUTOR"
+    USER = "USER"
+    ROBOT = "ROBOT"
 
 def has_right_role(role: Role, role_list: list[Role] = []):
     if Role.ADMIN not in role_list:

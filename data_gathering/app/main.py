@@ -7,8 +7,13 @@ from app.api.database.db import metadata, database, DATABASE_URI
 from app.auth.api_key import verify_api_key
 from sqlalchemy import create_engine
 
-engine = create_engine(DATABASE_URI)
-metadata.create_all(engine)
+def metadata_dump(sql, *multiparams, **params):
+    # print or write to log or file etc
+    print(sql.compile(dialect=engine.dialect))
+
+#engine = create_engine(DATABASE_URI, strategy='mock', executor=metadata_dump)
+engine = create_engine(DATABASE_URI, echo=True)
+metadata.create_all(engine,checkfirst=True)
 
 title = "Fleet control API"
 openapi_url = "/api/violette/v2/openapi.json"

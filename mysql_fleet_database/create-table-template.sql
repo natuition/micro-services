@@ -1,4 +1,8 @@
+"""
+Created by api :
+"""
 
+"""
 CREATE TABLE
     IF NOT EXISTS Customers(
         `id` int NOT NULL PRIMARY KEY AUTO_INCREMENT,
@@ -6,8 +10,8 @@ CREATE TABLE
         `email` VARCHAR(255) NOT NULL,
         `phone` VARCHAR(20) NOT NULL COMMENT 'Customer phone with area code',
         `hash_pwd` VARCHAR(255) NOT NULL COMMENT 'Customer pwd in MD5',
-        `hash_rt`  VARCHAR(255) NULL COMMENT 'Hashed refresh token',
-        `role` ENUM('admin', 'distributor', 'user') default 'user' NOT NULL,
+        `hash_rt` VARCHAR(255) NULL COMMENT 'Customer token in MD5',
+        `role` ENUM ('ADMIN','DISTRIBUTOR','USER') NOT NULL COMMENT 'Customer role',
         CONSTRAINT `UC_Customer` UNIQUE (email)
     );
 
@@ -24,9 +28,6 @@ CREATE TABLE
         CONSTRAINT `Robots_of_customers_robot_serial_number__Robot_serial_number` FOREIGN KEY(`robot_serial_number`) REFERENCES Robots(`serial_number`),
         CONSTRAINT `Robots_of_customers_customer_id__Customers_id` FOREIGN KEY(`customer_id`) REFERENCES Customers(`id`)
     );
-
-"""
-Created by api :
 
 CREATE TABLE
     IF NOT EXISTS GPS_points(
@@ -104,4 +105,12 @@ CREATE TABLE
         CONSTRAINT `Extracted_weeds_weed_type_id__Weed_types_id` FOREIGN KEY(`weed_type_id`) REFERENCES Weed_types(`id`)
     );
 
+CREATE TABLE
+    IF NOT EXISTS Robots_synthesis(
+        'id' int NOT NULL PRIMARY KEY AUTO_INCREMENT,
+        `heartbeat_timestamp` datetime NOT NULL,
+        'robot_synthesis' enum ('OP', 'HS', 'ANTI_THEFT') NOT NULL,
+        `robot_serial_number` VARCHAR(5) NOT NULL,
+        CONSTRAINT `Robots_synthesis_robot_serial_number__Robot_serial_number` FOREIGN KEY(`robot_serial_number`) REFERENCES Robots(`serial_number`)
+    );
 """
