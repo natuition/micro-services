@@ -31,27 +31,27 @@ services:
       fleet_database:
         condition: service_healthy
 
-  monitoring_bot_service:
-    build: ./monitoring_bot
-    container_name: monitoring_bot_service
-    restart: always
-    ports:
-      - "5000:5000"
-    depends_on:
-      fleet_database:
-        condition: service_healthy
-    environment:
-      - PYTHONUNBUFFERED=1
+  # monitoring_bot_service:
+  #   build: ./monitoring_bot
+  #   container_name: monitoring_bot_service
+  #   restart: always
+  #   ports:
+  #     - "5000:5000"
+  #   depends_on:
+  #     fleet_database:
+  #       condition: service_healthy
+  #   environment:
+  #     - PYTHONUNBUFFERED=1
 
-  monitoring_service:
-    build: ./robot_monitoring
-    container_name: robot_monitoring
-    restart: always
-    depends_on:
-      fleet_database:
-        condition: service_healthy
-    environment:
-      - PYTHONUNBUFFERED=1
+  # monitoring_service:
+  #   build: ./robot_monitoring
+  #   container_name: robot_monitoring
+  #   restart: always
+  #   depends_on:
+  #     fleet_database:
+  #       condition: service_healthy
+  #   environment:
+  #     - PYTHONUNBUFFERED=1
 
   build_report_service:
     build: ./report
